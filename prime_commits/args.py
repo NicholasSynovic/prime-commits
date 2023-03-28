@@ -1,13 +1,13 @@
 from argparse import ArgumentParser, Namespace
 
-name: str = "CLIME"
+name: str = "PRIME"
 authors: list = ["Nicholas M. Synovic", "Matthew Hyatt", "George K. Thiruvathukal"]
 
 
 def mainArgs() -> Namespace:
     parser: ArgumentParser = ArgumentParser(
-        prog=f"{name} Git Commit LOC Exploder",
-        description="A tool to extract all LOC information from a single branch of a Git repository on a per commit basis",
+        prog=f"{name} Commit Extractor",
+        description="A tool to extract all commit information from a single branch of a VCS repository",
         epilog=f"Author(s): {', '.join(authors)}",
     )
 
