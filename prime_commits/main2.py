@@ -1,8 +1,7 @@
 from argparse import Namespace
 from pathlib import PurePath
 
-from args import mainArgs
-
+from prime_commits.args import mainArgs
 from prime_commits.utils.filesystem import filesystemChecks, testPath
 
 
