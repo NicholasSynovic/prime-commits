@@ -2,7 +2,7 @@
 name = "prime-commits"
 version = "0.1.0"
 description = ""
-authors = ["Nicholas M. Synovic <nicholas.synovic@gmail.com>"]
+authors = ["Software and Systems Laboratory - Loyola University Chicago"]
 readme = "README.md"
 packages = [{include = "prime_commits"}]
 
