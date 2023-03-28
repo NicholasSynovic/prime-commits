@@ -1,21 +1,18 @@
-from argparse import Namespace
-from pathlib import PurePath
+from itertools import pairwise
+from typing import List
 
 from pygit2 import Repository
+from pygit2._pygit2 import Walker
 
-from prime_commits.args import mainArgs
-from prime_commits.utils.filesystem import filesystemChecks, testPath
 from prime_commits.vcs import git
+from prime_commits.vcs.general import createCommitPairing
 
 
 def main() -> None:
     pathStr: str = "/home/nsynovic/downloads/linux"
-
-    print("Creating Repository Obj.")
     repo: Repository = Repository(path=pathStr)
-
-    print("Getting Commit List...")
-    git.getCommitList(repo)
+    commitWalker: Walker = git.getCommitWalker(repo=repo)
+    commitPairs: pairwise = createCommitPairing(commits=commitWalker)
 
     # args: Namespace = mainArgs()
 
