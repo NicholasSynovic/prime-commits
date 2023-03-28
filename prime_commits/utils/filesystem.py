@@ -1,7 +1,8 @@
 from collections import namedtuple
 from os.path import exists
 from pathlib import PurePath
-from typing import Type
+
+from pygit2 import discover_repository
 
 filesystemChecks = namedtuple(
     typename="RepoChecks", field_names=["IS_DIR", "IS_GIT"], defaults=[False, False]
@@ -19,5 +20,4 @@ def checkIfValidDirectoryPath(path: PurePath) -> bool:
 
 
 def checkIfGitRepository(path: PurePath) -> bool:
-    gitPath: PurePath = PurePath(path, ".git")
-    return exists(path=gitPath)
+    return discover_repository(path.__str__())
