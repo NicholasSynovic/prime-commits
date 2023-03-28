@@ -9,7 +9,12 @@ from prime_commits.vcs import git
 
 
 def main() -> None:
-    repo: Repository = Repository(path="../")
+    pathStr: str = "/home/nsynovic/downloads/linux"
+
+    print("Creating Repository Obj.")
+    repo: Repository = Repository(path=pathStr)
+
+    print("Getting Commit List...")
     git.getCommitList(repo)
 
     # args: Namespace = mainArgs()
