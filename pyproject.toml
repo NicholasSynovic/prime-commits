@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "prime-commits"
+version = "0.1.0"
+description = ""
+authors = ["Nicholas M. Synovic <nicholas.synovic@gmail.com>"]
+readme = "README.md"
+packages = [{include = "prime_commits"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+matplotlib = "^3.7.1"
+numpy = "^1.24.2"
+pandas = "^1.5.3"
+progress = "^1.6"
+python-dateutil = "^2.8.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
