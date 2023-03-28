@@ -60,8 +60,7 @@ def main() -> None:
 
     df: DataFrame = pandas.read_json(args.input).T
 
-    data: tuple = computeXY(
-        df=df, xKey=args.x, yKey=args.y)
+    data: tuple = computeXY(df=df, xKey=args.x, yKey=args.y)
     plot(
         x=data[0],
         y=data[1],
