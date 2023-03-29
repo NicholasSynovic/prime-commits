@@ -1,4 +1,5 @@
 from collections import namedtuple
+from os import chdir
 from os.path import exists
 from pathlib import PurePath
 
@@ -21,3 +22,7 @@ def checkIfValidDirectoryPath(path: PurePath) -> bool:
 
 def checkIfGitRepository(path: PurePath) -> bool:
     return discover_repository(path.__str__())
+
+
+def switchDirectories(path: PurePath) -> None:
+    chdir(path=path)

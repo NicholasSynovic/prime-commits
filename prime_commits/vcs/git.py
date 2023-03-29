@@ -9,10 +9,28 @@ def getCommitWalker(repo: Repository) -> Walker:
     return repo.walk(repo.head.target, GIT_SORT_REVERSE)
 
 
-def getCommitCount_CMDLINE(repo: Repository, branch: str = "HEAD") -> int:
-    cmdStr: str = f"git --no-pager -C {repo.path} rev-list --count {branch}"
+def getCommitCount_CMDLINE(branch: str = "HEAD") -> int:
+    cmdStr: str = f"git --no-pager rev-list --count {branch}"
 
     process: CompletedProcess = subprocess.run(
         args=cmdStr, stdout=subprocess.PIPE, shell=True
     )
     return int(process.stdout)
+
+
+def checkoutCommit_CMDLINE(commitID: str) -> None:
+    cmdStr: str = f"git checkout {commitID} --quiet --force"
+    subprocess.run(args=cmdStr, stdout=subprocess.DEVNULL, shell=True)
+
+
+def getCurrentCheckedOutCommit_CMDLINE() -> str:
+    cmdStr: str = 'git show --pretty=format:"%H"'
+    process: CompletedProcess = subprocess.run(
+        args=cmdStr, stdout=subprocess.PIPE, shell=True
+    )
+    return process.stdout.decode()
+
+
+def exitDetachedHEAD_CMDLINE() -> None:
+    cmdStr: str = f"git checkout - --quiet --force"
+    subprocess.run(args=cmdStr, stdout=subprocess.DEVNULL, shell=True)
