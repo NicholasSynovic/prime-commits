@@ -24,11 +24,11 @@ def checkoutCommit_CMDLINE(commitID: str) -> None:
 
 
 def getCurrentCheckedOutCommit_CMDLINE() -> str:
-    cmdStr: str = 'git show --pretty=format:"%H"'
+    cmdStr: str = 'git --no-pager log -1 --pretty="%H"'
     process: CompletedProcess = subprocess.run(
         args=cmdStr, stdout=subprocess.PIPE, shell=True
     )
-    return process.stdout.decode()
+    return process.stdout.decode().strip()
 
 
 def exitDetachedHEAD_CMDLINE() -> None:
