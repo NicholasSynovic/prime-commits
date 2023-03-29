@@ -1,8 +1,10 @@
 from itertools import pairwise
+from time import time
 from typing import List
 
 import pandas
 from pandas import DataFrame
+from progress.bar import Bar
 from pygit2 import Commit, Repository
 from pygit2._pygit2 import Walker
 
@@ -12,8 +14,8 @@ from prime_commits.vcs.general import createCommitPairing
 
 
 def main() -> None:
+    dfList: List[DataFrame] = []
     pathStr: str = "/home/nsynovic/downloads/linux"
-    df: DataFrame = DataFrame()
 
     repo: Repository = Repository(path=pathStr)
 
@@ -22,14 +24,15 @@ def main() -> None:
     print("Getting commit count (Takes a while...)")
     commitCount: int = git.getCommitCount_CMDLINE(repo=repo)
 
-    return None
+    with Bar("Extracting commit information...", max=commitCount) as bar:
+        commit: Commit
+        for commit in commitWalker:
+            information: CommitInformation = CommitInformation(commit=commit)
+            dfList.append(information.__pd__())
+            bar.next()
 
-    commit: Commit
-    for commit in commitWalker:
-        information: CommitInformation = CommitInformation(commit=commit)
-
-        df = pandas.concat([df, information.__pd__()])
-
+    print("Concatinating DFs...")
+    df: DataFrame = pandas.concat(objs=dfList, ignore_index=True)
     df.to_json("test.json")
 
     commitPairs: pairwise = createCommitPairing(commits=commitWalker)

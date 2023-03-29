@@ -10,9 +10,9 @@ def getCommitWalker(repo: Repository) -> Walker:
 
 
 def getCommitCount_CMDLINE(repo: Repository, branch: str = "HEAD") -> int:
-    CMD_STR: str = f"git --no-pager -C {repo.path} rev-list --count {branch}"
+    cmdStr: str = f"git --no-pager -C {repo.path} rev-list --count {branch}"
 
     process: CompletedProcess = subprocess.run(
-        args=CMD_STR, stdout=subprocess.PIPE, shell=True
+        args=cmdStr, stdout=subprocess.PIPE, shell=True
     )
     return int(process.stdout)
