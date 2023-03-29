@@ -3,7 +3,6 @@ from typing import List
 
 import pandas
 from pandas import DataFrame
-from progress.spinner import Spinner
 from pygit2 import Commit, Repository
 from pygit2._pygit2 import Walker
 
@@ -19,6 +18,11 @@ def main() -> None:
     repo: Repository = Repository(path=pathStr)
 
     commitWalker: Walker = git.getCommitWalker(repo=repo)
+
+    print("Getting commit count (Takes a while...)")
+    commitCount: int = git.getCommitCount_CMDLINE(repo=repo)
+
+    return None
 
     commit: Commit
     for commit in commitWalker:
