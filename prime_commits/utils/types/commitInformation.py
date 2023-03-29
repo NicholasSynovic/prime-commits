@@ -20,5 +20,14 @@ class CommitInformation:
         self.CommitterEmail: str = committer.email
         self.CommitterDate: int = committer.time  # Unix timestamp
 
+        self.NumberOfFiles: int = 0
+        self.NumberOfLines: int = 0
+        self.NumberOfBlankLines: int = 0
+        self.NumberOfCommentLines: int = 0
+        self.LOC: int = 0
+        self.KLOC: int = 0
+        self.SCC_Complexity: int = 0
+        self.Bytes: int = 0
+
     def __pd__(self) -> DataFrame:
         return DataFrame.from_dict(data=self.__dict__, orient="index").T
