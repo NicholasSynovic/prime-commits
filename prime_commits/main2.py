@@ -16,21 +16,10 @@ from prime_commits.vcs import git
 PATH: PurePath = PurePath("/home/nsynovic/downloads/numpy")
 
 
-def computeAuthorComitterCommitDaysSince0(df: DataFrame) -> None:
-    comitDay0: int = datetime.fromtimestamp(df["CommitDate"][0])
-    commiterDay0: int = datetime.fromtimestamp(df["CommiterDate"][0])
-    authorDay0: int = datetime.fromtimestamp(df["AuthorDate"][0])
-
-    df["CommitDaysSince0"] = df["CommitDate"].apply(datetime.fromtimestamp) - comitDay0
-    df["CommitDaysSince0"] = pandas.to_timedelta(df["CommitDaysSince0"]).dt.days
-
-    df["CommiterDaysSince0"] = (
-        df["CommiterDate"].apply(datetime.fromtimestamp) - commiterDay0
-    )
-    df["CommiterDaysSince0"] = pandas.to_timedelta(df["CommiterDaysSince0"]).dt.days
-
-    df["AuthorDaysSince0"] = df["AuthorDate"].apply(datetime.fromtimestamp) - authorDay0
-    df["AuthorDaysSince0"] = pandas.to_timedelta(df["AuthorDaysSince0"]).dt.days
+def computeDaysSince0(df: DataFrame, dateColumn: str, daysSince0_Column: str) -> None:
+    day0: int = datetime.fromtimestamp(df[dateColumn][0])
+    df[daysSince0_Column] = df[dateColumn].apply(datetime.fromtimestamp) - day0
+    df[daysSince0_Column] = pandas.to_timedelta(df[daysSince0_Column]).dt.days
 
 
 def updateDataFrameRowFromSCC(df: DataFrame, sccDF: DataFrame, dfIDX: int) -> None:
@@ -69,8 +58,15 @@ def main() -> None:
 
     df: DataFrame = pandas.concat(objs=dfList, ignore_index=True)
 
-    computeAuthorComitterCommitDaysSince0(df)
-    print(df["CommitDaysSince0"])
+    computeDaysSince0(
+        df=df, dateColumn="CommitDate", daysSince0_Column="CommitDaysSince0"
+    )
+    computeDaysSince0(
+        df=df, dateColumn="CommiterDate", daysSince0_Column="CommiterDaysSince0"
+    )
+    computeDaysSince0(
+        df=df, dateColumn="AuthorDate", daysSince0_Column="AuthorDaysSince0"
+    )
 
     # TODO: Optimize DataFrame iteration. Vectorization?
     # TODO: Figure out how to optimally interface with a git repo. FUSE?
