@@ -41,24 +41,19 @@ def main() -> None:
     print("Concatinating DFs...")
     df: DataFrame = pandas.concat(objs=dfList, ignore_index=True)
 
-    for id in df["id"]:
-        git.checkoutCommit_CMDLINE(commitID=id)
-        scc.countLines()
-        quit()
+    with Bar("Counting lines of code...", max=len(df["id"])) as bar:
+        for id in df["id"]:
+            git.checkoutCommit_CMDLINE(commitID=id)
+            scc.countLines()
+            bar.next()
 
-    git.exitDetachedHEAD_CMDLINE(branch="main")
+        git.exitDetachedHEAD_CMDLINE(branch="main")
 
-    print(filesystem.getCWD())
-    # print(df)
-
-    # commitIDPairs: pairwise = pairwise(df["id"])
-
-    # commitPairs: pairwise = createCommitPairing(commits=commitWalker)
-
-    # args: Namespace = mainArgs()
-
-    # directory: PurePath = PurePath(args.directory)
-    # directoryChecks: filesystemChecks = testPath(path=directory)
+    filesystem.switchDirectories(path=pwd)
+    df.T.to_json(
+        "test.json",
+        indent=4,
+    )
 
 
 if __name__ == "__main__":

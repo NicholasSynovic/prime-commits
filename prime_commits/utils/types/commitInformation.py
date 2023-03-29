@@ -12,7 +12,7 @@ class CommitInformation:
 
         self.id: str = commit.id.__str__()
         self.CommitTime: int = commit.commit_time  # Unix timestamp
-        self.CommitMessage: str = commit.message
+        self.CommitMessage: str = commit.message.strip()
         self.AuthorName: str = author.name
         self.AuthorEmail: str = author.email
         self.AuthorDate: int = author.time  # Unix timestamp
