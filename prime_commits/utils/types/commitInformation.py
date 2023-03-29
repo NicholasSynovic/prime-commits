@@ -8,17 +8,21 @@ from pygit2._pygit2 import Commit
 class CommitInformation:
     def __init__(self, commit: Commit) -> None:
         author: Signature = commit.author
-        committer: Signature = commit.committer
+        commiter: Signature = commit.committer
 
         self.id: str = commit.id.__str__()
-        self.CommitTime: int = commit.commit_time  # Unix timestamp
+        self.CommitDate: int = commit.commit_time  # Unix timestamp
         self.CommitMessage: str = commit.message.strip()
         self.AuthorName: str = author.name
         self.AuthorEmail: str = author.email
         self.AuthorDate: int = author.time  # Unix timestamp
-        self.CommitterName: str = committer.name
-        self.CommitterEmail: str = committer.email
-        self.CommitterDate: int = committer.time  # Unix timestamp
+        self.CommiterName: str = commiter.name
+        self.CommiterEmail: str = commiter.email
+        self.CommiterDate: int = commiter.time  # Unix timestamp
+
+        self.CommitDaysSince0: int = 0
+        self.CommiterDaysSince0: int = 0
+        self.AuthorDaysSince0: int = 0
 
         self.NumberOfFiles: int = 0
         self.NumberOfLines: int = 0

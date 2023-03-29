@@ -1,10 +1,9 @@
-from itertools import pairwise
+from datetime import datetime
 from pathlib import PurePath
-from time import time
 from typing import List
 
 import pandas
-from pandas import DataFrame, Series
+from pandas import DataFrame
 from progress.bar import Bar
 from pygit2 import Commit, Repository
 from pygit2._pygit2 import Walker
@@ -13,10 +12,25 @@ from prime_commits.sclc import scc
 from prime_commits.utils import filesystem
 from prime_commits.utils.types.commitInformation import CommitInformation
 from prime_commits.vcs import git
-from prime_commits.vcs.general import createCommitPairing
 
-PATH: PurePath = PurePath("/home/nsynovic/downloads/linux")
-PATH = PurePath("/home/nsynovic/documents/projects/ssl/forks/asgard")
+PATH: PurePath = PurePath("/home/nsynovic/downloads/numpy")
+
+
+def computeAuthorComitterCommitDaysSince0(df: DataFrame) -> None:
+    comitDay0: int = datetime.fromtimestamp(df["CommitDate"][0])
+    commiterDay0: int = datetime.fromtimestamp(df["CommiterDate"][0])
+    authorDay0: int = datetime.fromtimestamp(df["AuthorDate"][0])
+
+    df["CommitDaysSince0"] = df["CommitDate"].apply(datetime.fromtimestamp) - comitDay0
+    df["CommitDaysSince0"] = pandas.to_timedelta(df["CommitDaysSince0"]).dt.days
+
+    df["CommiterDaysSince0"] = (
+        df["CommiterDate"].apply(datetime.fromtimestamp) - commiterDay0
+    )
+    df["CommiterDaysSince0"] = pandas.to_timedelta(df["CommiterDaysSince0"]).dt.days
+
+    df["AuthorDaysSince0"] = df["AuthorDate"].apply(datetime.fromtimestamp) - authorDay0
+    df["AuthorDaysSince0"] = pandas.to_timedelta(df["AuthorDaysSince0"]).dt.days
 
 
 def updateDataFrameRowFromSCC(df: DataFrame, sccDF: DataFrame, dfIDX: int) -> None:
@@ -35,7 +49,7 @@ def main() -> None:
     pwd: PurePath = filesystem.getCWD()
 
     filesystem.switchDirectories(path=PATH)
-    git.resetHEAD_CMDLINE(branch="main")
+    git.resetHEAD_CMDLINE(branch="master")
     repo: Repository = Repository(path=PATH)
     commitWalker: Walker = git.getCommitWalker(repo=repo)
 
@@ -43,14 +57,23 @@ def main() -> None:
 
     with Bar("Extracting commit information...", max=commitCount) as bar:
         commit: Commit
-        for commit in commitWalker:
-            information: CommitInformation = CommitInformation(commit=commit)
-            dfList.append(information.__pd__())
-            bar.next()
+        while True:
+            try:
+                information: CommitInformation = CommitInformation(
+                    commit=next(commitWalker)
+                )
+                dfList.append(information.__pd__())
+                bar.next()
+            except StopIteration:
+                break
 
     df: DataFrame = pandas.concat(objs=dfList, ignore_index=True)
 
-    # TODO: Optimize DataFrame iteration. Vecotrization?
+    computeAuthorComitterCommitDaysSince0(df)
+    print(df["CommitDaysSince0"])
+
+    # TODO: Optimize DataFrame iteration. Vectorization?
+    # TODO: Figure out how to optimally interface with a git repo. FUSE?
     with Bar("Counting lines of code...", max=len(df["id"])) as bar:
         idx: int
         for idx in range(len(df)):
@@ -59,7 +82,7 @@ def main() -> None:
             updateDataFrameRowFromSCC(df=df, sccDF=sccDF, dfIDX=idx)
             bar.next()
 
-        git.resetHEAD_CMDLINE(branch="main")
+        git.resetHEAD_CMDLINE(branch="master")
 
     filesystem.switchDirectories(path=pwd)
     df.T.to_json(
