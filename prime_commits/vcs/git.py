@@ -31,6 +31,6 @@ def getCurrentCheckedOutCommit_CMDLINE() -> str:
     return process.stdout.decode().strip()
 
 
-def exitDetachedHEAD_CMDLINE(branch: str) -> None:
+def resetHEAD_CMDLINE(branch: str) -> None:
     cmdStr: str = f"git switch {branch} --quiet --force"
     subprocess.run(args=cmdStr, stdout=subprocess.DEVNULL, shell=True)
