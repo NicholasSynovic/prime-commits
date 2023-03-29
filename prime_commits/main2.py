@@ -9,17 +9,19 @@ from progress.bar import Bar
 from pygit2 import Commit, Repository
 from pygit2._pygit2 import Walker
 
+from prime_commits.sclc import scc
 from prime_commits.utils import filesystem
 from prime_commits.utils.types.commitInformation import CommitInformation
 from prime_commits.vcs import git
 from prime_commits.vcs.general import createCommitPairing
 
 PATH: PurePath = PurePath("/home/nsynovic/downloads/linux")
-# PATH = PurePath(".")
+PATH = PurePath("/home/nsynovic/documents/projects/ssl/forks/asgard")
 
 
 def main() -> None:
     dfList: List[DataFrame] = []
+    pwd: PurePath = filesystem.getCWD()
 
     filesystem.switchDirectories(path=PATH)
     repo: Repository = Repository(path=PATH)
@@ -39,9 +41,17 @@ def main() -> None:
     print("Concatinating DFs...")
     df: DataFrame = pandas.concat(objs=dfList, ignore_index=True)
 
-    print(df)
+    for id in df["id"]:
+        git.checkoutCommit_CMDLINE(commitID=id)
+        scc.countLines()
+        quit()
 
-    commitIDPairs: pairwise = pairwise(df["id"])
+    git.exitDetachedHEAD_CMDLINE(branch="main")
+
+    print(filesystem.getCWD())
+    # print(df)
+
+    # commitIDPairs: pairwise = pairwise(df["id"])
 
     # commitPairs: pairwise = createCommitPairing(commits=commitWalker)
 
