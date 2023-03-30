@@ -1,237 +1,110 @@
-import json
-import logging
-import os
-from argparse import Namespace
 from datetime import datetime
-from os.path import exists, join
+from pathlib import PurePath
+from typing import List
+from warnings import filterwarnings
 
-from dateutil.parser import parse as dateParse
+import pandas
 from pandas import DataFrame, Series
 from progress.bar import Bar
+from pygit2 import Commit, Repository
+from pygit2._pygit2 import Walker
 
-from prime_commits.args import mainArgs
-from prime_commits.version import version
+from prime_commits.sclc import scc
+from prime_commits.utils import filesystem
+from prime_commits.utils.types.commitInformation import CommitInformation
+from prime_commits.vcs import git
 
+filterwarnings(action="ignore")
 
-def repoExists(directory: str = ".") -> bool:
-    isGitRepository: bool = exists(join(directory, ".git"))
-    if isGitRepository:
-        logging.debug(f"{directory} has a .git folder")
-    else:
-        logging.debug(f"{directory} doesn't have a .git folder")
-    return isGitRepository
-
-
-def gitCommits() -> list:
-    with os.popen(r'git log --reverse --pretty=format:"%H"') as commits:
-        commitList: list = [commit.strip() for commit in commits]
-        logging.debug(f"List of commits from Git repository: {commitList}")
-        return commitList
+PATH: PurePath = PurePath("/home/nsynovic/documents/projects/ssl/forks/asgard")
+BRANCH: str = "main"
 
 
-def commitMetadata(commit: str) -> list:
-    info: os._wrap_close
-    with os.popen(
-        rf'git log {commit} -1 --pretty=format:"%H;%an;%ae;%as;%at;%cn;%ce;%cs;%ct"'
-    ) as info:
-        data: str = info.read()
-        logging.info(f"{commit} information:\n{data}")
-        return data.split(";")
+def computeDaysSince0(df: DataFrame, dateColumn: str, daysSince0_Column: str) -> None:
+    day0: int = datetime.fromtimestamp(df[dateColumn][0])
+    df[daysSince0_Column] = df[dateColumn].apply(datetime.fromtimestamp) - day0
+    df[daysSince0_Column] = pandas.to_timedelta(df[daysSince0_Column]).dt.days
 
 
-def commitLOC(commit: str, options: str = "", processes: int = 0) -> list:
-    if options == "":
-        command: str = rf"cloc --git {commit} --use-sloccount --processes {processes} --json 2>/dev/null"
-    else:
-        command: str = rf"cloc --git {commit} --use-sloccount --config {options} --processes {processes} --json 2>/dev/null"
+def updateDataFrameRowFromSCC(df: DataFrame, sccDF: DataFrame, dfIDX: int) -> None:
+    sccFiles: int = sccDF.loc[0, "Files"]
+    sccLines: int = sccDF.loc[0, "Lines"]
+    sccBlank: int = sccDF.loc[0, "Blank"]
+    sccComment: int = sccDF.loc[0, "Comment"]
+    sccCode: int = sccDF.loc[0, "Code"]
+    sccComplexity: int = sccDF.loc[0, "Complexity"]
+    sccBytes: int = sccDF.loc[0, "Bytes"]
 
-    info: os._wrap_close
-    with os.popen(command) as info:
-        try:
-            data: dict = json.load(info)
-        except json.JSONDecodeError:
-            logging.debug([0, 0, 0, 0])
-            logging.info("Output should be in order: [blanks, code, comments, nfiles]")
-            return [0, 0, 0, 0]
-        df: DataFrame = DataFrame(data)
-        output: Series = df["SUM"].dropna().sort_index()
-        logging.info(f"Commit {commit} cloc information:\n{output}")
-        logging.debug(
-            f"Series to list conversion for commit {commit}: {output.to_list()}"
-        )
-        logging.info("Output should be in order: [blanks, code, comments, nfiles]")
-        return output.to_list()
+    df["NumberOfFiles"].iloc[dfIDX] = sccFiles
+    df["NumberOfLines"].iloc[dfIDX] = sccLines
+    df["NumberOfBlankLines"].iloc[dfIDX] = sccBlank
+    df["NumberOfCommentLines"].iloc[dfIDX] = sccComment
+    df["LOC"].iloc[dfIDX] = sccCode
+    df["KLOC"].iloc[dfIDX] = sccCode / 1000
+    df["SCC_Complexity"].iloc[dfIDX] = sccComplexity
+    df["Bytes"].iloc[dfIDX] = sccBytes
 
 
-def commitsDiff(commit1: str, commit2: str, str="", processes: int = 0) -> list:
-    output: list = []
-    command: str = rf"cloc --git --diff {commit1} {commit2} --processes {processes} --json 2>/dev/null"
-
-    info: os._wrap_close
-    with os.popen(command) as info:
-        try:
-            data: dict = json.load(info)
-        except json.JSONDecodeError as e:
-            logging.warning(
-                f"\nERROR: Couldn't convert to JSON between commits {commit1} and {commit2}"
-            )
-            return [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        df: DataFrame = DataFrame(data["SUM"])
-
-        added: Series = df["added"].dropna().sort_index()
-        same: Series = df["same"].dropna().sort_index()
-        modified: Series = df["modified"].dropna().sort_index()
-        removed: Series = df["removed"].dropna().sort_index()
-
-        logging.debug(f"Added diff between commits {commit1} and {commit2}:\n{added}")
-        logging.debug(f"Same diff between commits {commit1} and {commit2}:\n{same}")
-        logging.debug(
-            f"Modified diff between commits {commit1} and {commit2}:\n{modified}"
-        )
-        logging.debug(
-            f"Removed diff between commits {commit1} and {commit2}:\n{removed}"
-        )
-
-        output.extend(added.to_list())
-        output.extend(same.to_list())
-        output.extend(modified.to_list())
-        output.extend(removed.to_list())
-
-        logging.debug(
-            f"Series to list conversion for the diff of commits {commit1} and {commit2}: {output}"
-        )
-        logging.info(
-            "Output should be in order: [blanks, code, comments, nfiles] in key order: [added, same, modified, removed]"
-        )
-        return output
+def computeDeltas(df: DataFrame, columnName: str, deltaColumnName: str) -> None:
+    shift: Series = df[columnName].shift(periods=1, fill_value=0)
+    df[deltaColumnName] = df[columnName] - shift
 
 
-def commitsDelta(newLOC: list, oldLOC: list) -> list:
-    return [a - b for a, b in zip(newLOC, oldLOC)]
+def main() -> None:
+    dfList: List[DataFrame] = []
+    pwd: PurePath = filesystem.getCWD()
 
+    filesystem.switchDirectories(path=PATH)
+    git.resetHEAD_CMDLINE(branch=BRANCH)
+    repo: Repository = Repository(path=PATH)
+    commitWalker: Walker = git.getCommitWalker(repo=repo)
 
-def main() -> bool:
-    args: Namespace = mainArgs()
+    commitCount: int = git.getCommitCount_CMDLINE()
 
-    if args.version:
-        print(f"prime-git-commits-extract version {version()}")
-        quit(0)
-
-    pwd = os.getcwd()
-
-    logging.basicConfig(
-        level=logging.DEBUG,
-        filename=args.log,
-        filemode="a",
-        format="%(process)d-%(asctime)s-%(levelname)s: %(message)s",
-    )
-    logging.info("Started logging...")
-
-    if repoExists(directory=args.directory) is False:
-        print(f"Invalid Git repository directory: {args.directory}")
-        return False
-
-    os.chdir(args.directory)
-    os.system(f"git checkout {args.branch} --quiet")
-    logging.info(f"Checked out Git branch {args.branch}")
-
-    df: DataFrame = DataFrame(
-        columns=[
-            "commit_hash",
-            "author_name",
-            "author_email",
-            "author_date",
-            "author_date_unix",
-            "committer_name",
-            "committer_email",
-            "committer_date",
-            "committer_date_unix",
-            "lines_of_blanks",
-            "lines_of_code",
-            "lines_of_comments",
-            "number_of_files",
-            "added_lines_of_blanks",
-            "added_lines_of_code",
-            "added_lines_of_comments",
-            "added_number_of_files",
-            "same_lines_of_blanks",
-            "same_lines_of_code",
-            "same_lines_of_comments",
-            "same_number_of_files",
-            "modified_lines_of_blanks",
-            "modified_lines_of_code",
-            "modified_lines_of_comments",
-            "modified_number_of_files",
-            "removed_lines_of_blanks",
-            "removed_lines_of_code",
-            "removed_lines_of_comments",
-            "removed_number_of_files",
-            "delta_lines_of_blanks",
-            "delta_lines_of_code",
-            "delta_lines_of_comments",
-            "delta_number_of_files",
-            "author_days_since_0",
-            "committer_days_since_0",
-            "kloc",
-            "dkloc",
-        ]
-    )
-
-    commits: list = gitCommits()
-    logging.info("Started iterating through commits\n")
-    with Bar("Getting data from commits...", max=len(commits)) as bar:
-        previousLOC: list = []
-        c: int
-        for c in range(len(commits)):
-            logging.info(f"On commit {c}: ({commits[c]})")
-            data: list = commitMetadata(commit=commits[c])
-            loc: list = commitLOC(
-                commits[c], options=args.cloc, processes=args.processes
-            )
-
-            if c == 0:
-                authorDay0: datetime = dateParse(data[3]).replace(tzinfo=None)
-                committerDay0: datetime = dateParse(data[7]).replace(tzinfo=None)
-
-                diff: list = []
-                diff.extend(loc)
-                diff.extend([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-
-                delta: list = loc
-                logging.info(
-                    "Diff isn't calculated because there was no previous commit"
+    with Bar("Extracting commit information...", max=commitCount) as bar:
+        commit: Commit
+        while True:
+            try:
+                information: CommitInformation = CommitInformation(
+                    commit=next(commitWalker)
                 )
-            else:
-                diff: list = commitsDiff(commit1=commits[c], commit2=commits[c - 1])
-                delta = commitsDelta(loc, previousLOC)
+                dfList.append(information.__pd__())
+                bar.next()
+            except StopIteration:
+                break
 
-            data.extend(loc)
-            data.extend(diff)
-            data.extend(delta)
+    df: DataFrame = pandas.concat(objs=dfList, ignore_index=True)
 
-            authorDateDifference: int = (
-                dateParse(data[3]).replace(tzinfo=None) - authorDay0
-            ).days
-            committerDateDifference: int = (
-                dateParse(data[7]).replace(tzinfo=None) - committerDay0
-            ).days
-            kloc: float = data[10] / 1000
-            dkloc: float = data[30] / 1000
+    computeDaysSince0(
+        df=df, dateColumn="CommitDate", daysSince0_Column="CommitDaysSince0"
+    )
+    computeDaysSince0(
+        df=df, dateColumn="CommiterDate", daysSince0_Column="CommiterDaysSince0"
+    )
+    computeDaysSince0(
+        df=df, dateColumn="AuthorDate", daysSince0_Column="AuthorDaysSince0"
+    )
 
-            data.append(authorDateDifference)
-            data.append(committerDateDifference)
-            data.append(kloc)
-            data.append(dkloc)
-
-            df.loc[len(df.index)] = data
-
-            previousLOC = loc
-            logging.info(f"End of commit {c}: {commits[c]}\n")
-
+    # TODO: Optimize DataFrame iteration. Vectorization?
+    # TODO: Figure out how to optimally interface with a git repo. FUSE?
+    with Bar("Counting lines of code...", max=len(df["id"])) as bar:
+        idx: int
+        for idx in range(len(df)):
+            git.checkoutCommit_CMDLINE(commitID=df["id"].iloc[idx])
+            sccDF: DataFrame = scc.countLines()
+            updateDataFrameRowFromSCC(df=df, sccDF=sccDF, dfIDX=idx)
             bar.next()
 
-    df.T.to_json(join(pwd, args.output), indent=4)
-    return True
+    git.resetHEAD_CMDLINE(branch=BRANCH)
+
+    computeDeltas(df=df, columnName="LOC", deltaColumnName="DLOC")
+    computeDeltas(df=df, columnName="KLOC", deltaColumnName="DKLOC")
+
+    filesystem.switchDirectories(path=pwd)
+    df.T.to_json(
+        "test.json",
+        indent=4,
+    )
 
 
 if __name__ == "__main__":
