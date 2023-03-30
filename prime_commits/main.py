@@ -1,5 +1,7 @@
+from argparse import Namespace
 from datetime import datetime
 from pathlib import PurePath
+from sys import exit
 from typing import List
 from warnings import filterwarnings
 
@@ -9,15 +11,13 @@ from progress.bar import Bar
 from pygit2 import Commit, Repository
 from pygit2._pygit2 import Walker
 
+from prime_commits.args.mainArgs import getArgs
 from prime_commits.sclc import scc
 from prime_commits.utils import filesystem
 from prime_commits.utils.types.commitInformation import CommitInformation
 from prime_commits.vcs import git
 
 filterwarnings(action="ignore")
-
-PATH: PurePath = PurePath("/home/nsynovic/documents/projects/ssl/forks/asgard")
-BRANCH: str = "main"
 
 
 def computeDaysSince0(df: DataFrame, dateColumn: str, daysSince0_Column: str) -> None:
@@ -50,7 +50,12 @@ def computeDeltas(df: DataFrame, columnName: str, deltaColumnName: str) -> None:
     df[deltaColumnName] = df[columnName] - shift
 
 
-def main() -> None:
+def main(args: Namespace) -> None:
+    PATH: PurePath = args.directory
+    BRANCH: str | None = args.branch
+    OUTPUT: PurePath = args.output
+    LOG: PurePath = args.log
+
     dfList: List[DataFrame] = []
     pwd: PurePath = filesystem.getCWD()
 
@@ -102,10 +107,22 @@ def main() -> None:
 
     filesystem.switchDirectories(path=pwd)
     df.T.to_json(
-        "test.json",
+        path_or_buf=OUTPUT,
         indent=4,
     )
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        args: Namespace = getArgs()
+    except KeyboardInterrupt:
+        exit(1)
+
+    try:
+        main(args=args)
+    except KeyboardInterrupt:
+        pwd: PurePath = filesystem.getCWD()
+        filesystem.switchDirectories(path=args.directory)
+        git.resetHEAD_CMDLINE(branch=args.branch)
+        filesystem.switchDirectories(path=pwd)
+        exit(2)

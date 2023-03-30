@@ -1,8 +1,11 @@
 import subprocess
 from subprocess import CompletedProcess
 
-from pygit2 import GIT_SORT_REVERSE, Repository
-from pygit2._pygit2 import Walker
+from pygit2 import GIT_SORT_REVERSE, Branch, Repository, Walker
+
+
+def checkIfBranch(branch: str, repo: Repository) -> bool:
+    print(repo.branches)
 
 
 def getCommitWalker(repo: Repository) -> Walker:
