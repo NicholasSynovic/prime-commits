@@ -1,9 +1,10 @@
 from datetime import datetime
 from pathlib import PurePath
 from typing import List
+from warnings import filterwarnings
 
 import pandas
-from pandas import DataFrame
+from pandas import DataFrame, Series
 from progress.bar import Bar
 from pygit2 import Commit, Repository
 from pygit2._pygit2 import Walker
@@ -13,7 +14,10 @@ from prime_commits.utils import filesystem
 from prime_commits.utils.types.commitInformation import CommitInformation
 from prime_commits.vcs import git
 
-PATH: PurePath = PurePath("/home/nsynovic/downloads/numpy")
+filterwarnings(action="ignore")
+
+PATH: PurePath = PurePath("/home/nsynovic/documents/projects/ssl/forks/asgard")
+BRANCH: str = "main"
 
 
 def computeDaysSince0(df: DataFrame, dateColumn: str, daysSince0_Column: str) -> None:
@@ -23,14 +27,27 @@ def computeDaysSince0(df: DataFrame, dateColumn: str, daysSince0_Column: str) ->
 
 
 def updateDataFrameRowFromSCC(df: DataFrame, sccDF: DataFrame, dfIDX: int) -> None:
-    df["NumberOfFiles"].iloc[dfIDX] = sccDF["Files"][0]
-    df["NumberOfLines"].iloc[dfIDX] = sccDF["Lines"][0]
-    df["NumberOfBlankLines"].iloc[dfIDX] = sccDF["Blank"][0]
-    df["NumberOfCommentLines"].iloc[dfIDX] = sccDF["Comment"][0]
-    df["LOC"].iloc[dfIDX] = sccDF["Code"][0]
-    df["KLOC"].iloc[dfIDX] = sccDF["Code"][0] / 1000
-    df["SCC_Complexity"].iloc[dfIDX] = sccDF["Complexity"][0]
-    df["Bytes"].iloc[dfIDX] = sccDF["Bytes"][0]
+    sccFiles: int = sccDF.loc[0, "Files"]
+    sccLines: int = sccDF.loc[0, "Lines"]
+    sccBlank: int = sccDF.loc[0, "Blank"]
+    sccComment: int = sccDF.loc[0, "Comment"]
+    sccCode: int = sccDF.loc[0, "Code"]
+    sccComplexity: int = sccDF.loc[0, "Complexity"]
+    sccBytes: int = sccDF.loc[0, "Bytes"]
+
+    df["NumberOfFiles"].iloc[dfIDX] = sccFiles
+    df["NumberOfLines"].iloc[dfIDX] = sccLines
+    df["NumberOfBlankLines"].iloc[dfIDX] = sccBlank
+    df["NumberOfCommentLines"].iloc[dfIDX] = sccComment
+    df["LOC"].iloc[dfIDX] = sccCode
+    df["KLOC"].iloc[dfIDX] = sccCode / 1000
+    df["SCC_Complexity"].iloc[dfIDX] = sccComplexity
+    df["Bytes"].iloc[dfIDX] = sccBytes
+
+
+def computeDeltas(df: DataFrame, columnName: str, deltaColumnName: str) -> None:
+    shift: Series = df[columnName].shift(periods=1, fill_value=0)
+    df[deltaColumnName] = df[columnName] - shift
 
 
 def main() -> None:
@@ -38,7 +55,7 @@ def main() -> None:
     pwd: PurePath = filesystem.getCWD()
 
     filesystem.switchDirectories(path=PATH)
-    git.resetHEAD_CMDLINE(branch="master")
+    git.resetHEAD_CMDLINE(branch=BRANCH)
     repo: Repository = Repository(path=PATH)
     commitWalker: Walker = git.getCommitWalker(repo=repo)
 
@@ -78,7 +95,10 @@ def main() -> None:
             updateDataFrameRowFromSCC(df=df, sccDF=sccDF, dfIDX=idx)
             bar.next()
 
-        git.resetHEAD_CMDLINE(branch="master")
+    git.resetHEAD_CMDLINE(branch=BRANCH)
+
+    computeDeltas(df=df, columnName="LOC", deltaColumnName="DLOC")
+    computeDeltas(df=df, columnName="KLOC", deltaColumnName="DKLOC")
 
     filesystem.switchDirectories(path=pwd)
     df.T.to_json(

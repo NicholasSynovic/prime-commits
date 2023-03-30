@@ -29,9 +29,12 @@ class CommitInformation:
         self.NumberOfBlankLines: int = 0
         self.NumberOfCommentLines: int = 0
         self.LOC: int = 0
-        self.KLOC: int = 0
+        self.KLOC: float = 0
         self.SCC_Complexity: int = 0
         self.Bytes: int = 0
+
+        self.DLOC: int = 0
+        self.DKLOC: float = 0
 
     def __pd__(self) -> DataFrame:
         return DataFrame.from_dict(data=self.__dict__, orient="index").T
