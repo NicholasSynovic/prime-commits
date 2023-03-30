@@ -5,7 +5,13 @@ from pygit2 import GIT_SORT_REVERSE, Branch, Repository, Walker
 
 
 def checkIfBranch(branch: str, repo: Repository) -> bool:
-    print(repo.branches)
+    if repo.lookup_branch(branch) is None:
+        return False
+    return True
+
+
+def getHEADName(repo: Repository) -> str:
+    return repo.head.name.strip().split("/")[-1]
 
 
 def getCommitWalker(repo: Repository) -> Walker:
@@ -34,6 +40,6 @@ def getCurrentCheckedOutCommit_CMDLINE() -> str:
     return process.stdout.decode().strip()
 
 
-def resetHEAD_CMDLINE(branch: str) -> None:
-    cmdStr: str = f"git switch {branch} --quiet --force"
+def resetHEAD_CMDLINE() -> None:
+    cmdStr: str = f"git checkout HEAD --quiet --force"
     subprocess.run(args=cmdStr, stdout=subprocess.DEVNULL, shell=True)

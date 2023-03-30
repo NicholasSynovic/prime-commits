@@ -60,10 +60,17 @@ def main(args: Namespace) -> None:
     pwd: PurePath = filesystem.getCWD()
 
     filesystem.switchDirectories(path=PATH)
-    git.resetHEAD_CMDLINE(branch=BRANCH)
     repo: Repository = Repository(path=PATH)
-    commitWalker: Walker = git.getCommitWalker(repo=repo)
 
+    if BRANCH is None:
+        BRANCH: str = git.getHEADName(repo=repo)
+
+    if git.checkIfBranch(branch=BRANCH, repo=repo) is False:
+        print(f"Invalid branch name ({BRANCH}) for repository: {PATH}")
+        exit(3)
+
+    git.resetHEAD_CMDLINE()
+    commitWalker: Walker = git.getCommitWalker(repo=repo)
     commitCount: int = git.getCommitCount_CMDLINE()
 
     with Bar("Extracting commit information...", max=commitCount) as bar:
@@ -100,7 +107,7 @@ def main(args: Namespace) -> None:
             updateDataFrameRowFromSCC(df=df, sccDF=sccDF, dfIDX=idx)
             bar.next()
 
-    git.resetHEAD_CMDLINE(branch=BRANCH)
+    git.resetHEAD_CMDLINE()
 
     computeDeltas(df=df, columnName="LOC", deltaColumnName="DLOC")
     computeDeltas(df=df, columnName="KLOC", deltaColumnName="DKLOC")
@@ -123,6 +130,6 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         pwd: PurePath = filesystem.getCWD()
         filesystem.switchDirectories(path=args.directory)
-        git.resetHEAD_CMDLINE(branch=args.branch)
+        git.resetHEAD_CMDLINE()
         filesystem.switchDirectories(path=pwd)
         exit(2)
