@@ -1,11 +1,11 @@
 from argparse import Namespace
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import pandas
 from pandas import DataFrame
 
-from prime_commits.args import graphArgs
-from prime_commits.version import version
+from prime_commits.args.graphArgs import getArgs
 
 
 def computeXY(
@@ -32,17 +32,16 @@ def plot(
     output: str,
     stylesheet: str,
 ) -> None:
-    "param: type can only be one of the following: line, bar"
+    if stylesheet != None:
+        plt.style.use(Path(stylesheet).resolve())
 
-    if stylesheet != "":
-        plt.style.use(stylesheet)
-
-    if type == "line":
-        plt.plot(x, y)
-    elif type == "bar":
-        plt.bar(x, height=y)
-    else:
-        print(f"Invalid plot type: {type}. Can only be one of the following: line, bar")
+    match type:
+        case "line":
+            plt.plot(x, y)
+        case "bar":
+            plt.bar(x, height=y)
+        case _:
+            return 1
 
     plt.title(title)
     plt.xlabel(xLabel)
@@ -52,11 +51,7 @@ def plot(
 
 
 def main() -> None:
-    args: Namespace = graphArgs()
-
-    if args.version:
-        print(f"prime-git-commits-graph version {version()}")
-        quit(0)
+    args: Namespace = getArgs()
 
     df: DataFrame = pandas.read_json(args.input).T
 

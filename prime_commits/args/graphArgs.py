@@ -7,7 +7,7 @@ import prime_commits.args as argVars
 programName: str = f"{argVars.programName} Graph Utility"
 
 
-def graphArgs() -> Namespace:
+def getArgs() -> Namespace:
     parser: ArgumentParser = ArgumentParser(
         prog=programName,
         description=f"To graph commit and source code line counts (SCLC) from each commit of a branch of a Git repository",
