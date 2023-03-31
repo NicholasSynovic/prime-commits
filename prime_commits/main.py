@@ -1,3 +1,4 @@
+import logging
 from argparse import Namespace
 from datetime import datetime
 from pathlib import PurePath
@@ -55,11 +56,16 @@ def main(args: Namespace) -> None:
     BRANCH: str | None = args.branch
     OUTPUT: PurePath = args.output
     LOG: PurePath = args.log
-
     dfList: List[DataFrame] = []
+
+    logging.basicConfig(filename=LOG, datefmt="%Y-%m-%d %H:%M:%S", level=logging.INFO)
+
     pwd: PurePath = filesystem.getCWD()
+    logging.info(msg=f"Parent working directory is: {pwd}")
 
     filesystem.switchDirectories(path=PATH)
+    logging.debug(msg=f"Now working in: {PATH}")
+
     repo: Repository = Repository(path=PATH)
 
     if BRANCH is None:
@@ -68,6 +74,8 @@ def main(args: Namespace) -> None:
     if git.checkIfBranch(branch=BRANCH, repo=repo) is False:
         print(f"Invalid branch name ({BRANCH}) for repository: {PATH}")
         exit(3)
+
+    logging.info(msg=f"Using the {BRANCH} branch of {PATH}")
 
     git.resetHEAD_CMDLINE()
     commitWalker: Walker = git.getCommitWalker(repo=repo)
@@ -108,15 +116,20 @@ def main(args: Namespace) -> None:
             bar.next()
 
     git.resetHEAD_CMDLINE()
+    logging.info(msg=f"Reset {PATH} to HEAD branch")
 
     computeDeltas(df=df, columnName="LOC", deltaColumnName="DLOC")
     computeDeltas(df=df, columnName="KLOC", deltaColumnName="DKLOC")
+    logging.info(msg="Finished extracting commits")
 
     filesystem.switchDirectories(path=pwd)
+    logging.info(msg=f"Now working in: {pwd}")
+
     df.T.to_json(
         path_or_buf=OUTPUT,
         indent=4,
     )
+    logging.info(msg=f"Saved data to: {OUTPUT}")
 
 
 if __name__ == "__main__":
