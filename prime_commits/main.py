@@ -1,7 +1,7 @@
 import logging
 from argparse import Namespace
 from datetime import datetime
-from pathlib import PurePath
+from pathlib import Path
 from sys import exit
 from typing import List
 from warnings import filterwarnings
@@ -52,24 +52,24 @@ def computeDeltas(df: DataFrame, columnName: str, deltaColumnName: str) -> None:
 
 
 def main(args: Namespace) -> None:
-    PATH: PurePath = args.directory
+    PATH: Path = args.directory
     BRANCH: str | None = args.branch
-    OUTPUT: PurePath = args.output
-    LOG: PurePath = args.log
+    OUTPUT: Path = args.output
+    LOG: Path = args.log
     dfList: List[DataFrame] = []
 
     logging.basicConfig(filename=LOG, datefmt="%Y-%m-%d %H:%M:%S", level=logging.INFO)
 
-    pwd: PurePath = filesystem.getCWD()
+    pwd: Path = filesystem.getCWD()
     logging.info(msg=f"Parent working directory is: {pwd}")
 
     filesystem.switchDirectories(path=PATH)
-    logging.debug(msg=f"Now working in: {PATH}")
+    logging.info(msg=f"Now working in: {PATH}")
 
     repo: Repository = Repository(path=PATH)
 
     if BRANCH is None:
-        BRANCH: str = git.getHEADName(repo=repo)
+        BRANCH: str = git.getHEADName_CMDLINE()
 
     if git.checkIfBranch(branch=BRANCH, repo=repo) is False:
         print(f"Invalid branch name ({BRANCH}) for repository: {PATH}")
@@ -141,7 +141,7 @@ if __name__ == "__main__":
     try:
         main(args=args)
     except KeyboardInterrupt:
-        pwd: PurePath = filesystem.getCWD()
+        pwd: Path = filesystem.getCWD()
         filesystem.switchDirectories(path=args.directory)
         git.resetHEAD_CMDLINE()
         filesystem.switchDirectories(path=pwd)

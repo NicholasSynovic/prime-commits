@@ -1,6 +1,6 @@
 from argparse import ArgumentParser, Namespace
 from importlib.metadata import version
-from pathlib import PurePath
+from pathlib import Path
 
 import prime_commits.args as argVars
 
@@ -12,7 +12,7 @@ def getArgs() -> Namespace:
         epilog=f"Authors: {','.join(argVars.authorNames)}",
     )
     parser.add_argument(
-        "-d", "--directory", type=PurePath, required=True, help="A Git directory"
+        "-d", "--directory", type=Path, required=True, help="A Git directory"
     )
     parser.add_argument(
         "-b",
@@ -25,16 +25,16 @@ def getArgs() -> Namespace:
     parser.add_argument(
         "-o",
         "--output",
-        default=PurePath("commits.json"),
-        type=PurePath,
+        default=Path("commits.json").resolve(),
+        type=Path,
         required=False,
         help="Output file to store commit and SCLC data in JSON format",
     )
     parser.add_argument(
         "-l",
         "--log",
-        default=PurePath("commits.log"),
-        type=PurePath,
+        default=Path("commits.log").resolve(),
+        type=Path,
         required=False,
         help="File to store logging information",
     )

@@ -1,7 +1,7 @@
 from collections import namedtuple
 from os import chdir, getcwd
 from os.path import exists
-from pathlib import PurePath
+from pathlib import Path
 
 from pygit2 import discover_repository
 
@@ -10,23 +10,23 @@ filesystemChecks = namedtuple(
 )
 
 
-def testPath(path: PurePath) -> filesystemChecks:
+def testPath(path: Path) -> filesystemChecks:
     return filesystemChecks(
         IS_DIR=checkIfValidDirectoryPath(path), IS_GIT=checkIfGitRepository(path)
     )
 
 
-def checkIfValidDirectoryPath(path: PurePath) -> bool:
+def checkIfValidDirectoryPath(path: Path) -> bool:
     return exists(path)
 
 
-def checkIfGitRepository(path: PurePath) -> bool:
+def checkIfGitRepository(path: Path) -> bool:
     return discover_repository(path.__str__())
 
 
-def switchDirectories(path: PurePath) -> None:
+def switchDirectories(path: Path) -> None:
     chdir(path=path)
 
 
-def getCWD() -> PurePath:
-    return PurePath(getcwd())
+def getCWD() -> Path:
+    return Path(getcwd())

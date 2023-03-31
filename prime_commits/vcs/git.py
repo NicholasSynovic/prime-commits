@@ -10,8 +10,14 @@ def checkIfBranch(branch: str, repo: Repository) -> bool:
     return True
 
 
-def getHEADName(repo: Repository) -> str:
-    return repo.head.name.strip().split("/")[-1]
+def getHEADName_CMDLINE() -> str:
+    cmdStr: str = (
+        "git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@'"
+    )
+    process: CompletedProcess = subprocess.run(
+        args=cmdStr, stdout=subprocess.PIPE, shell=True
+    )
+    return process.stdout.decode().strip()
 
 
 def getCommitWalker(repo: Repository) -> Walker:
