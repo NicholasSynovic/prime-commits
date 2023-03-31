@@ -7,80 +7,83 @@ import prime_commits.args as argVars
 programName: str = f"{argVars.programName} Graph Utility"
 
 
-def getArgs() -> Namespace:
+def graphArgs() -> Namespace:
     parser: ArgumentParser = ArgumentParser(
         prog=programName,
-        usage=f"To graph the data generated from {argVars.programName}",
+        description=f"To graph commit and source code line counts (SCLC) from each commit of a branch of a Git repository",
         epilog=f"Author(s): {', '.join(argVars.authorNames)}",
     )
+
     parser.add_argument(
         "-i",
         "--input",
+        help=f"JSON export from {argVars.programName} Git Commit Exploder",
         type=Path,
-        required=True,
-        help=f"JSON data file from {argVars.programName}",
+        required=False,
+        default=Path("commits.json").resolve(),
     )
     parser.add_argument(
         "-o",
         "--output",
-        default=Path("commits.pdf").resolve(),
+        help="Filename of the graph",
         type=Path,
         required=False,
-        help="Output file to store the graph of commit information",
+        default=Path("commits.pdf").resolve(),
     )
     parser.add_argument(
         "-x",
-        help="Key of the x values to use for graphing. DEFAULT: author_days_since_0",
+        help="Key of the X values to use for graphing",
         type=str,
         required=False,
-        default="author_days_since_0",
+        default="CommitDaysSince0",
     )
     parser.add_argument(
         "-y",
-        help="Key of the y values to use for graphing. DEFAULT: lines_of_code",
+        help="Key of the Y values to use for graphing",
         type=str,
         required=False,
-        default="lines_of_code",
+        default="KLOC",
     )
     parser.add_argument(
         "--type",
-        help="Type of figure to plot. DEFAULT: line",
+        help="Type of figure to plot",
+        choices=["line", "bar"],
         type=str,
         required=False,
         default="line",
     )
     parser.add_argument(
         "--title",
-        help='Title of the figure. DEFAULT: ""',
+        help="Title of the figure",
         type=str,
         required=False,
-        default="",
+        default="KLOC per Day",
     )
     parser.add_argument(
         "--x-label",
-        help='X axis label of the figure. DEFAULT: ""',
+        help="X axis label of the figure",
         type=str,
         required=False,
-        default="",
+        default="Commit Day Since 0",
     )
     parser.add_argument(
         "--y-label",
-        help='Y axis label of the figure. DEFAULT: ""',
+        help="Y axis label of the figure",
         type=str,
         required=False,
-        default="",
+        default="KLOC",
     )
     parser.add_argument(
         "--stylesheet",
-        help='Filepath of matplotlib stylesheet to use. DEFAULT: ""',
-        type=str,
+        help="Filepath of a MatPlotLib stylesheet to use",
+        type=Path.resolve(),
         required=False,
-        default="",
+        default=None,
     )
     parser.add_argument(
         "-v",
         "--version",
         action="version",
-        version=f"{argVars.programName}: {version(distribution_name='prime-commits')}",
+        version=f"{programName} {version(distribution_name='prime-commits')}",
     )
     return parser.parse_args()
