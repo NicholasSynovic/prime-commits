@@ -42,6 +42,6 @@ def getArgs() -> Namespace:
         "-v",
         "--version",
         action="version",
-        version=version(distribution_name="prime-commits"),
+        version=f"{argVars.programName}: {version(distribution_name='prime-commits')}",
     )
     return parser.parse_args()
