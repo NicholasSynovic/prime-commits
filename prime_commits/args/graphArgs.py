@@ -1,25 +1,32 @@
-def graphArgs() -> Namespace:
-    parser: ArgumentParser = ArgumentParser(
-        prog=f"{name} Git Commit LOC Exploder Grapher",
-        description=f"A tool for graphing LOC information from the output of the {name} Commit LOC Exploder",
-        epilog=f"Author(s): {', '.join(authors)}",
-    )
+from argparse import ArgumentParser, Namespace
+from importlib.metadata import version
+from pathlib import Path
 
+import prime_commits.args as argVars
+
+programName: str = f"{argVars.programName} Graph Utility"
+
+
+def getArgs() -> Namespace:
+    parser: ArgumentParser = ArgumentParser(
+        prog=programName,
+        usage=f"To graph the data generated from {argVars.programName}",
+        epilog=f"Author(s): {', '.join(argVars.authorNames)}",
+    )
     parser.add_argument(
         "-i",
         "--input",
-        help=f"JSON export from {name} Git Commit Exploder. DEFAULT: ./commits_loc.json",
-        type=str,
-        required=False,
-        default="commits_loc.json",
+        type=Path,
+        required=True,
+        help=f"JSON data file from {argVars.programName}",
     )
     parser.add_argument(
         "-o",
         "--output",
-        help="Filename of the graph. DEFAULT: ./commits_loc.pdf",
-        type=str,
+        default=Path("commits.pdf").resolve(),
+        type=Path,
         required=False,
-        default="commits_loc.pdf",
+        help="Output file to store the graph of commit information",
     )
     parser.add_argument(
         "-x",
@@ -73,8 +80,7 @@ def graphArgs() -> Namespace:
     parser.add_argument(
         "-v",
         "--version",
-        help="Display version of the tool",
-        action="store_true",
-        default=False,
+        action="version",
+        version=f"{argVars.programName}: {version(distribution_name='prime-commits')}",
     )
     return parser.parse_args()
