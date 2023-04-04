@@ -56,9 +56,15 @@ def main(args: Namespace) -> None:
     BRANCH: str | None = args.branch
     OUTPUT: Path = args.output
     LOG: Path = args.log
+
     dfList: List[DataFrame] = []
 
-    logging.basicConfig(filename=LOG, datefmt="%Y-%m-%d %H:%M:%S", level=logging.INFO)
+    logging.basicConfig(
+        filename=LOG,
+        format="%(asctime)s %(levelname)s: %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+        level=logging.INFO,
+    )
 
     pwd: Path = filesystem.getCWD()
     logging.info(msg=f"Parent working directory is: {pwd}")
