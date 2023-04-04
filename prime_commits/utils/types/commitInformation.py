@@ -1,5 +1,6 @@
-from typing import List
+from json import load
 
+from jsonschema import validate
 from pandas import DataFrame
 from pygit2 import Signature
 from pygit2._pygit2 import Commit
@@ -36,3 +37,8 @@ class CommitInformation:
 
     def __pd__(self) -> DataFrame:
         return DataFrame.from_dict(data=self.__dict__, orient="index").T
+
+    def __validate__(self) -> bool:
+        with open("schema.json", "r") as jsonSchema:
+            schema: dict = load(fp=jsonSchema)
+            return validate(instance=self.__dict__, schema=schema)

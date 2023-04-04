@@ -137,3 +137,4 @@ dmypy.json
 
 test/
 log.txt
+!prime_commits/utils/types/schema.json
