@@ -52,10 +52,10 @@ def computeDeltas(df: DataFrame, columnName: str, deltaColumnName: str) -> None:
 
 
 def main(args: Namespace) -> None:
-    PATH: Path = args.directory
-    BRANCH: str | None = args.branch
-    OUTPUT: Path = args.output
-    LOG: Path = args.log
+    PATH: Path = args.gitDirectory
+    BRANCH: str | None = args.gitBranch
+    OUTPUT: Path = args.gitOutput
+    LOG: Path = args.gitLog
 
     dfList: List[DataFrame] = []
 
@@ -148,7 +148,7 @@ if __name__ == "__main__":
         main(args=args)
     except KeyboardInterrupt:
         pwd: Path = filesystem.getCWD()
-        filesystem.switchDirectories(path=args.directory)
-        git.resetHEAD_CMDLINE(branch=args.branch)
+        filesystem.switchDirectories(path=args.gitDirectory)
+        git.resetHEAD_CMDLINE(branch=args.gitBranch)
         filesystem.switchDirectories(path=pwd)
         exit(2)
