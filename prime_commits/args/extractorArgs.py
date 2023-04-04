@@ -9,8 +9,10 @@ def getArgs() -> Namespace:
     parser: ArgumentParser = ArgumentParser(
         prog=argVars.programName,
         usage="To extract commit and source code line counts (SCLC) from each commit of a branch of a Git repository",
-        epilog=f"Authors: {','.join(argVars.authorNames)}",
+        epilog=f"Authors: {', '.join(argVars.authorNames)}",
+        formatter_class=argVars.AlphabeticalOrderHelpFormatter,
     )
+
     parser.add_argument(
         "-d", "--directory", type=Path, required=True, help="A Git directory"
     )
@@ -44,4 +46,5 @@ def getArgs() -> Namespace:
         action="version",
         version=f"{argVars.programName}: {version(distribution_name='prime-commits')}",
     )
+
     return parser.parse_args()

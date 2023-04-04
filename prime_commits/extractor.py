@@ -12,7 +12,7 @@ from progress.bar import Bar
 from pygit2 import Commit, Repository
 from pygit2._pygit2 import Walker
 
-from prime_commits.args.mainArgs import getArgs
+from prime_commits.args.extractorArgs import getArgs
 from prime_commits.sclc import scc
 from prime_commits.utils import filesystem
 from prime_commits.utils.types.commitInformation import CommitInformation
