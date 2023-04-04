@@ -13,7 +13,7 @@ from pygit2 import Commit, Repository
 from pygit2._pygit2 import Walker
 
 from prime_commits.args.extractorArgs import getArgs
-from prime_commits.sclc import scc
+from prime_commits.sclc import cloc, scc
 from prime_commits.utils import filesystem
 from prime_commits.utils.types.commitInformation import CommitInformation
 from prime_commits.vcs import git
@@ -33,8 +33,8 @@ def updateDataFrameRowFromSCC(df: DataFrame, sccDF: DataFrame, dfIDX: int) -> No
     sccBlank: int = sccDF.loc[0, "Blank"]
     sccComment: int = sccDF.loc[0, "Comment"]
     sccCode: int = sccDF.loc[0, "Code"]
-    sccComplexity: int = sccDF.loc[0, "Complexity"]
-    sccBytes: int = sccDF.loc[0, "Bytes"]
+    # sccComplexity: int = sccDF.loc[0, "Complexity"]
+    # sccBytes: int = sccDF.loc[0, "Bytes"]
 
     df["NumberOfFiles"].iloc[dfIDX] = sccFiles
     df["NumberOfLines"].iloc[dfIDX] = sccLines
@@ -42,8 +42,8 @@ def updateDataFrameRowFromSCC(df: DataFrame, sccDF: DataFrame, dfIDX: int) -> No
     df["NumberOfCommentLines"].iloc[dfIDX] = sccComment
     df["LOC"].iloc[dfIDX] = sccCode
     df["KLOC"].iloc[dfIDX] = sccCode / 1000
-    df["SCC_Complexity"].iloc[dfIDX] = sccComplexity
-    df["Bytes"].iloc[dfIDX] = sccBytes
+    # df["SCC_Complexity"].iloc[dfIDX] = sccComplexity
+    # df["Bytes"].iloc[dfIDX] = sccBytes
 
 
 def computeDeltas(df: DataFrame, columnName: str, deltaColumnName: str) -> None:
@@ -119,7 +119,8 @@ def main() -> None:
         idx: int
         for idx in range(len(df)):
             git.checkoutCommit_CMDLINE(commitID=df["id"].iloc[idx])
-            sccDF: DataFrame = scc.countLines()
+            # sccDF: DataFrame = scc.countLines()
+            sccDF: DataFrame = cloc.countLines(directory=PATH)
             updateDataFrameRowFromSCC(df=df, sccDF=sccDF, dfIDX=idx)
             bar.next()
 
