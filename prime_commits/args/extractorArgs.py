@@ -20,6 +20,15 @@ def getArgs() -> Namespace:
         version=f"{argVars.programName}: {version(distribution_name='prime-commits')}",
     )
 
+    parser.add_argument(
+        "--sclc",
+        default="scc",
+        type=str,
+        choices=["scc", "cloc"],
+        required=False,
+        help="Set the source code line counter to use",
+    )
+
     subparsers: _SubParsersAction = parser.add_subparsers(
         title="Supported VCS",
         required=True,

@@ -2,7 +2,6 @@ import logging
 from argparse import Namespace
 from datetime import datetime
 from pathlib import Path
-from sys import exit
 from typing import List
 from warnings import filterwarnings
 
@@ -27,14 +26,12 @@ def computeDaysSince0(df: DataFrame, dateColumn: str, daysSince0_Column: str) ->
     df[daysSince0_Column] = pandas.to_timedelta(df[daysSince0_Column]).dt.days
 
 
-def updateDataFrameRowFromSCC(df: DataFrame, sccDF: DataFrame, dfIDX: int) -> None:
-    sccFiles: int = sccDF.loc[0, "Files"]
-    sccLines: int = sccDF.loc[0, "Lines"]
-    sccBlank: int = sccDF.loc[0, "Blank"]
-    sccComment: int = sccDF.loc[0, "Comment"]
-    sccCode: int = sccDF.loc[0, "Code"]
-    # sccComplexity: int = sccDF.loc[0, "Complexity"]
-    # sccBytes: int = sccDF.loc[0, "Bytes"]
+def updateDataFrameRowFromSCC(df: DataFrame, sclcDF: DataFrame, dfIDX: int) -> None:
+    sccFiles: int = sclcDF.loc[0, "Files"]
+    sccLines: int = sclcDF.loc[0, "Lines"]
+    sccBlank: int = sclcDF.loc[0, "Blank"]
+    sccComment: int = sclcDF.loc[0, "Comment"]
+    sccCode: int = sclcDF.loc[0, "Code"]
 
     df["NumberOfFiles"].iloc[dfIDX] = sccFiles
     df["NumberOfLines"].iloc[dfIDX] = sccLines
@@ -42,8 +39,6 @@ def updateDataFrameRowFromSCC(df: DataFrame, sccDF: DataFrame, dfIDX: int) -> No
     df["NumberOfCommentLines"].iloc[dfIDX] = sccComment
     df["LOC"].iloc[dfIDX] = sccCode
     df["KLOC"].iloc[dfIDX] = sccCode / 1000
-    # df["SCC_Complexity"].iloc[dfIDX] = sccComplexity
-    # df["Bytes"].iloc[dfIDX] = sccBytes
 
 
 def computeDeltas(df: DataFrame, columnName: str, deltaColumnName: str) -> None:
@@ -59,14 +54,22 @@ def main() -> None:
     OUTPUT: Path = args.gitOutput
     LOG: Path = args.gitLog
 
-    dfList: List[DataFrame] = []
-
     logging.basicConfig(
         filename=LOG,
         format="%(asctime)s %(levelname)s: %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
         level=logging.INFO,
     )
+
+    SCLC: int
+    if args.sclc == "scc":
+        SCLC = 0
+        logging.info(msg=f"Using SCC as SCLC")
+    else:
+        SCLC = 1
+        logging.info(msg=f"Using CLOC as SCLC")
+
+    dfList: List[DataFrame] = []
 
     pwd: Path = filesystem.getCWD()
     logging.info(msg=f"Parent working directory is: {pwd}")
@@ -81,7 +84,7 @@ def main() -> None:
 
     if git.checkIfBranch(branch=BRANCH, repo=repo) is False:
         print(f"Invalid branch name ({BRANCH}) for repository: {PATH}")
-        exit(3)
+        exit(2)
 
     logging.info(msg=f"Using the {BRANCH} branch of {PATH}")
 
@@ -119,9 +122,13 @@ def main() -> None:
         idx: int
         for idx in range(len(df)):
             git.checkoutCommit_CMDLINE(commitID=df["id"].iloc[idx])
-            # sccDF: DataFrame = scc.countLines()
-            sccDF: DataFrame = cloc.countLines(directory=PATH)
-            updateDataFrameRowFromSCC(df=df, sccDF=sccDF, dfIDX=idx)
+
+            if SCLC == 0:
+                sclcDF: DataFrame = scc.countLines()
+            else:
+                sclcDF: DataFrame = cloc.countLines(directory=PATH)
+
+            updateDataFrameRowFromSCC(df=df, sclcDF=sclcDF, dfIDX=idx)
             bar.next()
 
     git.resetHEAD_CMDLINE(branch=BRANCH)
