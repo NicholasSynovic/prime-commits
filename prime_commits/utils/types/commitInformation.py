@@ -30,8 +30,6 @@ class CommitInformation:
         self.NumberOfCommentLines: int = 0
         self.LOC: int = 0
         self.KLOC: float = 0
-        self.SCC_Complexity: int = 0
-        self.Bytes: int = 0
 
         self.DLOC: int = 0
         self.DKLOC: float = 0
