@@ -726,7 +726,23 @@ files = [
     {file = "six-1.16.0.tar.gz", hash = "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926"},
 ]
 
+[[package]]
+name = "typedframe"
+version = "0.10.0"
+description = "Typed Wrappers over Pandas and Polars DataFrames with schema validation"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "typedframe-0.10.0-py3-none-any.whl", hash = "sha256:852ad81c3d912ada75bf518c2c75eb0a4ae2a95d8d1b9da324b02f966eea1b32"},
+    {file = "typedframe-0.10.0.tar.gz", hash = "sha256:8a98dcf80c181120ff678477a6fdd05c9004f37d62f119511070ff3e621211c2"},
+]
+
+[package.extras]
+pandas = ["numpy", "pandas"]
+polars = ["polars", "pyarrow"]
+
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "b203e73a2e660071c69e88c55ff846d13afbdf2da356907550173d8b288f62ac"
+content-hash = "884503e9fcdd52eff572ac4521fe63fdad884dbff2b9ed0750744077a9a311c5"
