@@ -1,9 +1,10 @@
-from json import load
-
 from jsonschema import validate
+from jsonschema.exceptions import ValidationError
 from pandas import DataFrame
 from pygit2 import Signature
 from pygit2._pygit2 import Commit
+
+from prime_commits.utils.types.schema import schema
 
 
 class CommitInformation:
@@ -39,6 +40,8 @@ class CommitInformation:
         return DataFrame.from_dict(data=self.__dict__, orient="index").T
 
     def __validate__(self) -> bool:
-        with open("schema.json", "r") as jsonSchema:
-            schema: dict = load(fp=jsonSchema)
-            return validate(instance=self.__dict__, schema=schema)
+        try:
+            validate(instance=self.__dict__, schema=schema)
+            return True
+        except ValidationError:
+            return False

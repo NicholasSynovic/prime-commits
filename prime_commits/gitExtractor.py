@@ -6,6 +6,8 @@ from typing import List
 from warnings import filterwarnings
 
 import pandas
+from jsonschema import validate
+from jsonschema.exceptions import ValidationError
 from pandas import DataFrame, Series
 from progress.bar import Bar
 from pygit2 import Commit, Repository
@@ -15,6 +17,7 @@ from prime_commits.args.extractorArgs import getArgs
 from prime_commits.sclc import cloc, scc
 from prime_commits.utils import filesystem
 from prime_commits.utils.types.commitInformation import CommitInformation
+from prime_commits.utils.types.schema import schema
 from prime_commits.vcs import git
 
 filterwarnings(action="ignore")
@@ -99,10 +102,6 @@ def main() -> None:
                 information: CommitInformation = CommitInformation(
                     commit=next(commitWalker)
                 )
-
-                # print(information.__validate__())
-                # quit()
-
                 dfList.append(information.__pd__())
                 bar.next()
             except StopIteration:
@@ -120,8 +119,6 @@ def main() -> None:
         df=df, dateColumn="AuthorDate", daysSince0_Column="AuthorDaysSince0"
     )
 
-    # TODO: Optimize DataFrame iteration. Vectorization?
-    # TODO: Figure out how to optimally interface with a git repo. FUSE?
     with Bar("Counting lines of code...", max=len(df["id"])) as bar:
         idx: int
         for idx in range(len(df)):
@@ -144,6 +141,16 @@ def main() -> None:
 
     filesystem.switchDirectories(path=pwd)
     logging.info(msg=f"Now working in: {pwd}")
+
+    try:
+        validate(instance=df.T.to_json(), schema=schema)
+    except ValidationError:
+        print(
+            "\n",
+            "ERROR: Unable to validate commits. Please see the log for more information",
+        )
+        logging.info(msg=f"ERROR: Unable to validate JSON: {information.__dict__}")
+        exit(3)
 
     df.T.to_json(
         path_or_buf=OUTPUT,
