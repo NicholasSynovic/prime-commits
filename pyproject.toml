@@ -1,10 +1,74 @@
 [tool.poetry]
 name = "prime-commits"
-version = "0.1.0"
-description = ""
+version = "1.0.0"
+description = "PRIME - Commits Extractor"
 authors = ["Software and Systems Laboratory - Loyola University Chicago"]
 readme = "README.md"
 packages = [{include = "prime_commits"}]
+license = "BSD-3-Clause"
+homepage = "https://github.com/SoftwareSystemsLaboratory/prime-commits"
+repository = "https://github.com/SoftwareSystemsLaboratory/prime-commits"
+documentation = "https://github.com/SoftwareSystemsLaboratory/prime-commits"
+keywords = [
+    "bugzilla",
+    "bus factor",
+    "bus factor",
+    "cloc",
+    "commits",
+    "commits",
+    "delta lines of code",
+    "engineering",
+    "git",
+    "git",
+    "github",
+    "github",
+    "gitlab",
+    "installable",
+    "issue density",
+    "issue density",
+    "issue spoilage",
+    "issues",
+    "issues",
+    "kloc",
+    "lines of code",
+    "longitudinal graphs",
+    "loyola university chicago",
+    "loyola",
+    "luc",
+    "metrics",
+    "metrics",
+    "mining",
+    "productivity",
+    "python",
+    "repository mining",
+    "repository",
+    "simple",
+    "sloccount",
+    "software engineering",
+    "software metrics",
+    "software systems laboratory",
+    "software",
+    "ssl",
+    "thousands of lines of code",
+    "tool",
+    "vcs",
+]
+
+classifiers=[
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Software Development",
+    "Topic :: Scientific/Engineering",
+    "Operating System :: POSIX",
+    "Operating System :: Unix",
+    "Operating System :: MacOS",
+]
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -20,3 +84,10 @@ lxml = "^4.9.2"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+prime-commits-extrac = "prime_commits:gitExtractor"
+prime-commits-graph = "prime_commits:graph"
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/SoftwareSystemsLaboratory/prime-commits/issues"
