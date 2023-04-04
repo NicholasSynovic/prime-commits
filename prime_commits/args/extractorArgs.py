@@ -20,7 +20,11 @@ def getArgs() -> Namespace:
         version=f"{argVars.programName}: {version(distribution_name='prime-commits')}",
     )
 
-    subparsers: _SubParsersAction = parser.add_subparsers(title="Supported VCS")
+    subparsers: _SubParsersAction = parser.add_subparsers(
+        title="Supported VCS",
+        required=True,
+    )
+
     gitParser = subparsers.add_parser(
         name="git",
         help="Options for analyzing Git repositories",
