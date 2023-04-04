@@ -39,6 +39,7 @@ def getArgs() -> Namespace:
         help="Options for analyzing Git repositories",
         prog=argVars.programName,
         usage="prime-commits git",
+        formatter_class=argVars.AlphabeticalOrderHelpFormatter,
     )
 
     gitParser.add_argument(

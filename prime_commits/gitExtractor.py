@@ -99,6 +99,10 @@ def main() -> None:
                 information: CommitInformation = CommitInformation(
                     commit=next(commitWalker)
                 )
+
+                # print(information.__validate__())
+                # quit()
+
                 dfList.append(information.__pd__())
                 bar.next()
             except StopIteration:
