@@ -86,8 +86,8 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-prime-commits-extrac = "prime_commits:gitExtractor"
-prime-commits-graph = "prime_commits:graph"
+prime-commits-extract = "prime_commits.gitExtractor:main"
+prime-commits-graph = "prime_commits.graph:main"
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/SoftwareSystemsLaboratory/prime-commits/issues"

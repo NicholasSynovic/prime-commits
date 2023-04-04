@@ -51,7 +51,9 @@ def computeDeltas(df: DataFrame, columnName: str, deltaColumnName: str) -> None:
     df[deltaColumnName] = df[columnName] - shift
 
 
-def main(args: Namespace) -> None:
+def main() -> None:
+    args: Namespace = getArgs()
+
     PATH: Path = args.gitDirectory
     BRANCH: str | None = args.gitBranch
     OUTPUT: Path = args.gitOutput
@@ -139,16 +141,4 @@ def main(args: Namespace) -> None:
 
 
 if __name__ == "__main__":
-    try:
-        args: Namespace = getArgs()
-    except KeyboardInterrupt:
-        exit(1)
-
-    try:
-        main(args=args)
-    except KeyboardInterrupt:
-        pwd: Path = filesystem.getCWD()
-        filesystem.switchDirectories(path=args.gitDirectory)
-        git.resetHEAD_CMDLINE(branch=args.gitBranch)
-        filesystem.switchDirectories(path=pwd)
-        exit(2)
+    main()
