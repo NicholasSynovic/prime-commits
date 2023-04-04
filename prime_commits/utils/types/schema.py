@@ -1,4 +1,6 @@
-{
+from json import loads
+
+schemaStr: str = """{
     "$schema": "http://json-schema.org/draft-06/schema#",
     "type": "object",
     "additionalProperties": {
@@ -104,3 +106,6 @@
         }
     }
 }
+"""
+
+schema: dict = loads(s=schemaStr)
