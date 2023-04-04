@@ -83,7 +83,7 @@ def main(args: Namespace) -> None:
 
     logging.info(msg=f"Using the {BRANCH} branch of {PATH}")
 
-    git.resetHEAD_CMDLINE()
+    git.resetHEAD_CMDLINE(branch=BRANCH)
     commitWalker: Walker = git.getCommitWalker(repo=repo)
     commitCount: int = git.getCommitCount_CMDLINE()
 
@@ -121,7 +121,7 @@ def main(args: Namespace) -> None:
             updateDataFrameRowFromSCC(df=df, sccDF=sccDF, dfIDX=idx)
             bar.next()
 
-    git.resetHEAD_CMDLINE()
+    git.resetHEAD_CMDLINE(branch=BRANCH)
     logging.info(msg=f"Reset {PATH} to HEAD branch")
 
     computeDeltas(df=df, columnName="LOC", deltaColumnName="DLOC")
@@ -149,6 +149,6 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         pwd: Path = filesystem.getCWD()
         filesystem.switchDirectories(path=args.directory)
-        git.resetHEAD_CMDLINE()
+        git.resetHEAD_CMDLINE(branch=args.branch)
         filesystem.switchDirectories(path=pwd)
         exit(2)
