@@ -52,8 +52,11 @@ def getCurrentCheckedOutCommit() -> str:
     process: CompletedProcess = subprocess.run(
         args=cmdStr, stdout=subprocess.PIPE, shell=True
     )
-    return process.stdout.decode().strip()
+    commit: str = process.stdout.decode().strip()
+    logging.info(msg=f"{commit} is currently checked out")
+    return commit
 
 
-def getCommitWalker(repo: Repository) -> Walker:
+def getCommitIterator(repo: Repository) -> Walker:
+    logging.info(msg=f"Created commit iterator")
     return repo.walk(repo.head.target, GIT_SORT_REVERSE)
