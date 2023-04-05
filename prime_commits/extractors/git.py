@@ -10,17 +10,11 @@ from pygit2 import Repository
 from pygit2._pygit2 import Walker
 
 from prime_commits.sclc import cloc, scc
-from prime_commits.utils import filesystem
+from prime_commits.utils import compute, filesystem
 from prime_commits.utils.types.config import Config
 from prime_commits.utils.types.gitCommitInformation import GitCommitInformation
 from prime_commits.utils.types.schema import schema
 from prime_commits.vcs import git
-
-
-def computeDaysSince0(df: DataFrame, dateColumn: str, daysSince0_Column: str) -> None:
-    day0: int = datetime.fromtimestamp(df[dateColumn][0])
-    df[daysSince0_Column] = df[dateColumn].apply(datetime.fromtimestamp) - day0
-    df[daysSince0_Column] = pandas.to_timedelta(df[daysSince0_Column]).dt.days
 
 
 def updateDataFrameRowFromSCLC(df: DataFrame, sclcDF: DataFrame, dfIDX: int) -> None:
@@ -36,11 +30,6 @@ def updateDataFrameRowFromSCLC(df: DataFrame, sclcDF: DataFrame, dfIDX: int) -> 
     df["NumberOfCommentLines"].iloc[dfIDX] = sclcComment
     df["LOC"].iloc[dfIDX] = sclcCode
     df["KLOC"].iloc[dfIDX] = sclcCode / 1000
-
-
-def computeDeltas(df: DataFrame, columnName: str, deltaColumnName: str) -> None:
-    shift: Series = df[columnName].shift(periods=1, fill_value=0)
-    df[deltaColumnName] = df[columnName] - shift
 
 
 def main(config: Config) -> None:
@@ -76,13 +65,13 @@ def main(config: Config) -> None:
         by=["CommitDate"]
     )
 
-    computeDaysSince0(
+    compute.computeDaysSince0(
         df=df, dateColumn="CommitDate", daysSince0_Column="CommitDaysSince0"
     )
-    computeDaysSince0(
+    compute.computeDaysSince0(
         df=df, dateColumn="CommiterDate", daysSince0_Column="CommiterDaysSince0"
     )
-    computeDaysSince0(
+    compute.computeDaysSince0(
         df=df, dateColumn="AuthorDate", daysSince0_Column="AuthorDaysSince0"
     )
 
@@ -101,8 +90,8 @@ def main(config: Config) -> None:
 
     git.restoreRepoToBranch(branch=config.BRANCH)
 
-    computeDeltas(df=df, columnName="LOC", deltaColumnName="DLOC")
-    computeDeltas(df=df, columnName="KLOC", deltaColumnName="DKLOC")
+    compute.computeDeltas(df=df, columnName="LOC", deltaColumnName="DLOC")
+    compute.computeDeltas(df=df, columnName="KLOC", deltaColumnName="DKLOC")
     logging.info(msg="Finished extracting commits")
 
     filesystem.switchDirectories(path=config.PWD)
