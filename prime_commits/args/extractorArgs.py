@@ -43,12 +43,13 @@ def getArgs() -> Namespace:
         dest="directory",
     )
     parser.add_argument(
-        "--git-branch",
+        "-b",
+        "--branch",
         default=None,
         type=str,
         required=False,
-        help="A branch name of the Git repository to be analyzed",
-        dest="gitBranch",
+        help="A branch name of the repository to be analyzed",
+        dest="branch",
     )
     parser.add_argument(
         "-o",

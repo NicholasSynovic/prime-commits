@@ -11,7 +11,7 @@ from prime_commits.utils import filesystem
 class Config:
     def __init__(self, args: Namespace) -> None:
         self.PATH: Path = args.directory.resolve()
-        self.BRANCH: str | None = args.gitBranch
+        self.BRANCH: str | None = args.branch
         self.OUTPUT: Path = args.output.resolve()
         self.LOG: Path = args.log.resolve()
         self.PWD: Path = filesystem.getCWD()
