@@ -74,10 +74,10 @@ def main(config: Config) -> None:
         df=df, dateColumn="AuthorDate", daysSince0_Column="AuthorDaysSince0"
     )
 
-    with Bar("Counting lines of code...", max=len(df["id"])) as bar:
+    with Bar("Counting lines of code...", max=df.shape[0]) as bar:
         idx: int
         for idx in range(len(df)):
-            git.checkoutCommit_CMDLINE(commitID=df["id"].iloc[idx])
+            git.checkoutCommit(commitID=df["id"].iloc[idx])
 
             if config.SCLC == 0:
                 sclcDF: DataFrame = scc.countLines()
