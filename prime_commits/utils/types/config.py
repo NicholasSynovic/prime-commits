@@ -1,7 +1,9 @@
 import logging
 from argparse import Namespace
 from pathlib import Path
+from typing import List
 
+from pandas import DataFrame
 from pygit2 import Repository
 
 from prime_commits.utils import filesystem
@@ -14,6 +16,7 @@ class Config:
         self.OUTPUT: Path = args.output
         self.LOG: Path = args.log
         self.PWD: Path = filesystem.getCWD()
+        self.DF_LIST: List[DataFrame] = []
 
         self.REPO: Repository = Repository(path=self.PATH)
 

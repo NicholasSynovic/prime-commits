@@ -44,8 +44,6 @@ def computeDeltas(df: DataFrame, columnName: str, deltaColumnName: str) -> None:
 
 
 def main(config: Config) -> None:
-    dfList: List[DataFrame] = []
-
     if config.BRANCH is None:
         config.BRANCH: str = git.getHEADName_CMDLINE()
 
@@ -65,12 +63,12 @@ def main(config: Config) -> None:
                 information: CommitInformation = CommitInformation(
                     commit=next(commitWalker)
                 )
-                dfList.append(information.__pd__())
+                config.DF_LIST.append(information.__pd__())
                 bar.next()
             except StopIteration:
                 break
 
-    df: DataFrame = pandas.concat(objs=dfList, ignore_index=True)
+    df: DataFrame = pandas.concat(objs=config.DF_LIST, ignore_index=True)
 
     computeDaysSince0(
         df=df, dateColumn="CommitDate", daysSince0_Column="CommitDaysSince0"
