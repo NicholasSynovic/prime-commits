@@ -21,7 +21,7 @@ def getDefaultBranchName() -> str:
         args=cmdStr, stdout=subprocess.PIPE, shell=True
     )
     branch: str = process.stdout.decode().strip()
-    logging.info(msg=f"{branch} is a valid Git branch")
+    logging.info(msg=f"{branch} is the default Git branch")
     return branch
 
 
