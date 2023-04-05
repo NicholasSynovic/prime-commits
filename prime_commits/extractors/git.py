@@ -9,13 +9,12 @@ from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 from pandas import DataFrame, Series
 from progress.bar import Bar
-from pygit2 import Commit
 from pygit2._pygit2 import Walker
 
 from prime_commits.sclc import cloc, scc
 from prime_commits.utils import filesystem
 from prime_commits.utils.types.commitInformation import CommitInformation
-from prime_commits.utils.types.extractor import Config
+from prime_commits.utils.types.config import Config
 from prime_commits.utils.types.schema import schema
 from prime_commits.vcs import git
 
@@ -67,7 +66,6 @@ def main(args: Namespace) -> None:
     commitCount: int = git.getCommitCount_CMDLINE()
 
     with Bar("Extracting commit information...", max=commitCount) as bar:
-        commit: Commit
         while True:
             try:
                 information: CommitInformation = CommitInformation(
