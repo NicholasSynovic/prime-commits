@@ -104,7 +104,6 @@ def main(config: Config) -> None:
     logging.info(msg="Finished extracting commits")
 
     filesystem.switchDirectories(path=config.PWD)
-    logging.info(msg=f"Now working in: {config.PWD}")
 
     try:
         validate(instance=df.T.to_json(), schema=schema)
