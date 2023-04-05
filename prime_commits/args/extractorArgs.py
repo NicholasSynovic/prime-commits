@@ -1,4 +1,4 @@
-from argparse import ArgumentParser, Namespace, _SubParsersAction
+from argparse import ArgumentParser, Namespace
 from importlib.metadata import version
 from pathlib import Path
 
