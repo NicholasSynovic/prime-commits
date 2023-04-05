@@ -72,7 +72,9 @@ def main(config: Config) -> None:
             except StopIteration:
                 break
 
-    df: DataFrame = pandas.concat(objs=config.DF_LIST, ignore_index=True)
+    df: DataFrame = pandas.concat(objs=config.DF_LIST, ignore_index=True).sort_values(
+        by=["CommitDate"]
+    )
 
     computeDaysSince0(
         df=df, dateColumn="CommitDate", daysSince0_Column="CommitDaysSince0"
