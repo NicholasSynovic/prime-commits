@@ -5,7 +5,6 @@ from pathlib import Path
 from pygit2 import Repository
 
 from prime_commits.utils import filesystem
-from prime_commits.vcs import git
 
 
 class Config:
