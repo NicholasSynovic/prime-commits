@@ -1,3 +1,4 @@
+import logging
 from collections import namedtuple
 from os import chdir, getcwd
 from os.path import exists
@@ -17,11 +18,21 @@ def testPath(path: Path) -> filesystemChecks:
 
 
 def checkIfValidDirectoryPath(path: Path) -> bool:
-    return exists(path)
+    if exists(path):
+        logging.info(msg=f"{path} is a valid directory path")
+        return True
+    logging.info(msg=f"{path} is not a valid directory path")
+    return False
 
 
 def checkIfGitRepository(path: Path) -> bool:
-    return discover_repository(path.__str__())
+    isRepo: str | None = discover_repository(path.__str__())
+
+    if type(isRepo) is str:
+        logging.info(f"{path} is a Git repository")
+        return True
+    logging.info(f"{path} is not a Git repository")
+    return False
 
 
 def switchDirectories(path: Path) -> None:
