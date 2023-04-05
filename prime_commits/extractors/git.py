@@ -44,26 +44,28 @@ def computeDeltas(df: DataFrame, columnName: str, deltaColumnName: str) -> None:
 
 
 def main(config: Config) -> None:
+    if filesystem.checkIfGitRepository(path=config.PATH) == False:
+        exit(1)
     repo: Repository = Repository(path=config.PATH)
 
     if config.BRANCH is None:
-        config.BRANCH: str = git.getHEADName_CMDLINE()
+        config.BRANCH: str = git.getDefaultBranchName()
 
-    if git.checkIfBranch(branch=config.BRANCH, repo=repo) is False:
-        print(f"Invalid branch name ({config.BRANCH}) for repository: {config.PATH}")
+    if git.checkIfBranch(branch=config.BRANCH, repo=repo) == False:
         exit(2)
+    else:
+        logging.info(msg=f"Using the {config.BRANCH} branch of {config.PATH}")
 
-    logging.info(msg=f"Using the {config.BRANCH} branch of {config.PATH}")
+    git.restoreRepoToBranch(branch=config.BRANCH)
 
-    git.resetHEAD_CMDLINE(branch=config.BRANCH)
-    commitWalker: Walker = git.getCommitWalker(repo=repo)
-    commitCount: int = git.getCommitCount_CMDLINE()
+    commitIterator: Walker = git.getCommitIterator(repo=repo)
+    commitCount: int = git.getCommitCount(branch=config.BRANCH)
 
     with Bar("Extracting commit information...", max=commitCount) as bar:
         while True:
             try:
                 information: CommitInformation = CommitInformation(
-                    commit=next(commitWalker)
+                    commit=next(commitIterator)
                 )
                 config.DF_LIST.append(information.__pd__())
                 bar.next()
@@ -95,8 +97,7 @@ def main(config: Config) -> None:
             updateDataFrameRowFromSCLC(df=df, sclcDF=sclcDF, dfIDX=idx)
             bar.next()
 
-    git.resetHEAD_CMDLINE(branch=config.BRANCH)
-    logging.info(msg=f"Reset {config.PATH} to HEAD branch")
+    git.restoreRepoToBranch(branch=config.BRANCH)
 
     computeDeltas(df=df, columnName="LOC", deltaColumnName="DLOC")
     computeDeltas(df=df, columnName="KLOC", deltaColumnName="DKLOC")
