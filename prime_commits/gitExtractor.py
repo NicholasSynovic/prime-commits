@@ -29,19 +29,19 @@ def computeDaysSince0(df: DataFrame, dateColumn: str, daysSince0_Column: str) ->
     df[daysSince0_Column] = pandas.to_timedelta(df[daysSince0_Column]).dt.days
 
 
-def updateDataFrameRowFromSCC(df: DataFrame, sclcDF: DataFrame, dfIDX: int) -> None:
-    sccFiles: int = sclcDF.loc[0, "Files"]
-    sccLines: int = sclcDF.loc[0, "Lines"]
-    sccBlank: int = sclcDF.loc[0, "Blank"]
-    sccComment: int = sclcDF.loc[0, "Comment"]
-    sccCode: int = sclcDF.loc[0, "Code"]
+def updateDataFrameRowFromSCLC(df: DataFrame, sclcDF: DataFrame, dfIDX: int) -> None:
+    sclcFiles: int = sclcDF.loc[0, "Files"]
+    sclcLines: int = sclcDF.loc[0, "Lines"]
+    sclcBlank: int = sclcDF.loc[0, "Blank"]
+    sclcComment: int = sclcDF.loc[0, "Comment"]
+    sclcCode: int = sclcDF.loc[0, "Code"]
 
-    df["NumberOfFiles"].iloc[dfIDX] = sccFiles
-    df["NumberOfLines"].iloc[dfIDX] = sccLines
-    df["NumberOfBlankLines"].iloc[dfIDX] = sccBlank
-    df["NumberOfCommentLines"].iloc[dfIDX] = sccComment
-    df["LOC"].iloc[dfIDX] = sccCode
-    df["KLOC"].iloc[dfIDX] = sccCode / 1000
+    df["NumberOfFiles"].iloc[dfIDX] = sclcFiles
+    df["NumberOfLines"].iloc[dfIDX] = sclcLines
+    df["NumberOfBlankLines"].iloc[dfIDX] = sclcBlank
+    df["NumberOfCommentLines"].iloc[dfIDX] = sclcComment
+    df["LOC"].iloc[dfIDX] = sclcCode
+    df["KLOC"].iloc[dfIDX] = sclcCode / 1000
 
 
 def computeDeltas(df: DataFrame, columnName: str, deltaColumnName: str) -> None:
@@ -129,7 +129,7 @@ def main() -> None:
             else:
                 sclcDF: DataFrame = cloc.countLines(directory=PATH)
 
-            updateDataFrameRowFromSCC(df=df, sclcDF=sclcDF, dfIDX=idx)
+            updateDataFrameRowFromSCLC(df=df, sclcDF=sclcDF, dfIDX=idx)
             bar.next()
 
     git.resetHEAD_CMDLINE(branch=BRANCH)
