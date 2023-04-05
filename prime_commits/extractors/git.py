@@ -1,12 +1,12 @@
 import logging
 from datetime import datetime
-from typing import List
 
 import pandas
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 from pandas import DataFrame, Series
 from progress.bar import Bar
+from pygit2 import Repository
 from pygit2._pygit2 import Walker
 
 from prime_commits.sclc import cloc, scc
@@ -44,17 +44,19 @@ def computeDeltas(df: DataFrame, columnName: str, deltaColumnName: str) -> None:
 
 
 def main(config: Config) -> None:
+    repo: Repository = Repository(path=config.PATH)
+
     if config.BRANCH is None:
         config.BRANCH: str = git.getHEADName_CMDLINE()
 
-    if git.checkIfBranch(branch=config.BRANCH, repo=config.REPO) is False:
+    if git.checkIfBranch(branch=config.BRANCH, repo=repo) is False:
         print(f"Invalid branch name ({config.BRANCH}) for repository: {config.PATH}")
         exit(2)
 
     logging.info(msg=f"Using the {config.BRANCH} branch of {config.PATH}")
 
     git.resetHEAD_CMDLINE(branch=config.BRANCH)
-    commitWalker: Walker = git.getCommitWalker(repo=config.REPO)
+    commitWalker: Walker = git.getCommitWalker(repo=repo)
     commitCount: int = git.getCommitCount_CMDLINE()
 
     with Bar("Extracting commit information...", max=commitCount) as bar:

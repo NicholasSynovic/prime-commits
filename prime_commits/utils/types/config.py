@@ -4,21 +4,18 @@ from pathlib import Path
 from typing import List
 
 from pandas import DataFrame
-from pygit2 import Repository
 
 from prime_commits.utils import filesystem
 
 
 class Config:
     def __init__(self, args: Namespace) -> None:
-        self.PATH: Path = args.directory
+        self.PATH: Path = args.directory.resolve()
         self.BRANCH: str | None = args.gitBranch
-        self.OUTPUT: Path = args.output
-        self.LOG: Path = args.log
+        self.OUTPUT: Path = args.output.resolve()
+        self.LOG: Path = args.log.resolve()
         self.PWD: Path = filesystem.getCWD()
         self.DF_LIST: List[DataFrame] = []
-
-        self.REPO: Repository = Repository(path=self.PATH)
 
         logging.basicConfig(
             filename=self.LOG,

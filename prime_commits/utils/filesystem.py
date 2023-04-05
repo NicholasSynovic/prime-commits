@@ -29,4 +29,4 @@ def switchDirectories(path: Path) -> None:
 
 
 def getCWD() -> Path:
-    return Path(getcwd())
+    return Path(getcwd()).resolve()
