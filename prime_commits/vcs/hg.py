@@ -34,3 +34,11 @@ def getCommitIterator(
     log = repo.log(branch=branch, removed=True)
     logging.info(msg=f"Created commit iterator for branch {branch}")
     return log
+
+
+def getCommitCount(
+    commitIterator: List[Tuple[bytes, bytes, bytes, bytes, bytes, bytes]]
+) -> int:
+    count: int = len(commitIterator)
+    logging.info(msg=f"Found {count} commits")
+    return count

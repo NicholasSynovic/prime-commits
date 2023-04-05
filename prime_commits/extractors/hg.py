@@ -1,11 +1,13 @@
 import logging
-from pathlib import Path
+from typing import List, Tuple
 
 import hglib
 from hglib.client import hgclient
+from progress.bar import Bar
 
 from prime_commits.utils import filesystem
 from prime_commits.utils.types.config import Config
+from prime_commits.utils.types.gitCommitInformation import CommitInformation
 from prime_commits.vcs import hg
 
 
@@ -23,9 +25,12 @@ def main(config: Config) -> None:
         logging.info(msg=f"Using the {config.BRANCH} branch of {config.PATH}")
 
     hg.restoreRepoToBranch(branch=config.BRANCH, repo=repo)
-    commitIterator = hg.getCommitIterator(branch=config.BRANCH, repo=repo)
+    commitIterator: List[
+        Tuple[bytes, bytes, bytes, bytes, bytes, bytes]
+    ] = hg.getCommitIterator(branch=config.BRANCH, repo=repo)
+    commitCount: int = hg.getCommitCount(commitIterator=commitIterator)
 
-    # if config.BRANCH is None:
-    #     config.BRANCH = "default"
-
-    # logging.info(msg=f"Using the {config.BRANCH} branch of {config.PATH}")
+    with Bar("Extracting commit information...", max=commitCount) as bar:
+        commit: Tuple[bytes, bytes, bytes, bytes, bytes, bytes]
+        for commit in commitIterator:
+            information: CommitInformation = CommitInformation()
