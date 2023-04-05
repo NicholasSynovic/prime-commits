@@ -1,7 +1,6 @@
 import logging
 from datetime import datetime
 from typing import List
-from warnings import filterwarnings
 
 import pandas
 from jsonschema import validate
@@ -16,8 +15,6 @@ from prime_commits.utils.types.commitInformation import CommitInformation
 from prime_commits.utils.types.config import Config
 from prime_commits.utils.types.schema import schema
 from prime_commits.vcs import git
-
-filterwarnings(action="ignore")
 
 
 def computeDaysSince0(df: DataFrame, dateColumn: str, daysSince0_Column: str) -> None:
