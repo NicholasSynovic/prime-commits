@@ -1,20 +1,9 @@
 import logging
-from collections import namedtuple
 from os import chdir, getcwd
 from os.path import exists
 from pathlib import Path
 
 from pygit2 import discover_repository
-
-filesystemChecks = namedtuple(
-    typename="RepoChecks", field_names=["IS_DIR", "IS_GIT"], defaults=[False, False]
-)
-
-
-def testPath(path: Path) -> filesystemChecks:
-    return filesystemChecks(
-        IS_DIR=checkIfValidDirectoryPath(path), IS_GIT=checkIfGitRepository(path)
-    )
 
 
 def checkIfValidDirectoryPath(path: Path) -> bool:
@@ -36,8 +25,11 @@ def checkIfGitRepository(path: Path) -> bool:
 
 
 def switchDirectories(path: Path) -> None:
+    logging.info(msg=f"Now working in {path}")
     chdir(path=path)
 
 
 def getCWD() -> Path:
-    return Path(getcwd()).resolve()
+    cwd: Path = Path(getcwd()).resolve()
+    logging.info(msg=f"The current working directory is {cwd}")
+    return cwd
