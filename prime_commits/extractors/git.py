@@ -1,7 +1,6 @@
 import logging
 from argparse import Namespace
 from datetime import datetime
-from pathlib import Path
 from typing import List
 from warnings import filterwarnings
 
@@ -10,13 +9,13 @@ from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 from pandas import DataFrame, Series
 from progress.bar import Bar
-from pygit2 import Commit, Repository
+from pygit2 import Commit
 from pygit2._pygit2 import Walker
 
-from prime_commits.args.extractorArgs import getArgs
 from prime_commits.sclc import cloc, scc
 from prime_commits.utils import filesystem
 from prime_commits.utils.types.commitInformation import CommitInformation
+from prime_commits.utils.types.extractor import Config
 from prime_commits.utils.types.schema import schema
 from prime_commits.vcs import git
 
@@ -50,47 +49,21 @@ def computeDeltas(df: DataFrame, columnName: str, deltaColumnName: str) -> None:
 
 
 def main(args: Namespace) -> None:
-    PATH: Path = args.directory
-    BRANCH: str | None = args.gitBranch
-    OUTPUT: Path = args.output
-    LOG: Path = args.log
-
-    logging.basicConfig(
-        filename=LOG,
-        format="%(asctime)s %(levelname)s: %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-        level=logging.INFO,
-    )
-
-    SCLC: int
-    if args.sclc == "scc":
-        SCLC = 0
-        logging.info(msg=f"Using SCC as SCLC")
-    else:
-        SCLC = 1
-        logging.info(msg=f"Using CLOC as SCLC")
+    config: Config = Config(args=args)
 
     dfList: List[DataFrame] = []
 
-    pwd: Path = filesystem.getCWD()
-    logging.info(msg=f"Parent working directory is: {pwd}")
+    if config.BRANCH is None:
+        config.BRANCH: str = git.getHEADName_CMDLINE()
 
-    filesystem.switchDirectories(path=PATH)
-    logging.info(msg=f"Now working in: {PATH}")
-
-    repo: Repository = Repository(path=PATH)
-
-    if BRANCH is None:
-        BRANCH: str = git.getHEADName_CMDLINE()
-
-    if git.checkIfBranch(branch=BRANCH, repo=repo) is False:
-        print(f"Invalid branch name ({BRANCH}) for repository: {PATH}")
+    if git.checkIfBranch(branch=config.BRANCH, repo=config.REPO) is False:
+        print(f"Invalid branch name ({config.BRANCH}) for repository: {config.PATH}")
         exit(2)
 
-    logging.info(msg=f"Using the {BRANCH} branch of {PATH}")
+    logging.info(msg=f"Using the {config.BRANCH} branch of {config.PATH}")
 
-    git.resetHEAD_CMDLINE(branch=BRANCH)
-    commitWalker: Walker = git.getCommitWalker(repo=repo)
+    git.resetHEAD_CMDLINE(branch=config.BRANCH)
+    commitWalker: Walker = git.getCommitWalker(repo=config.REPO)
     commitCount: int = git.getCommitCount_CMDLINE()
 
     with Bar("Extracting commit information...", max=commitCount) as bar:
@@ -122,23 +95,23 @@ def main(args: Namespace) -> None:
         for idx in range(len(df)):
             git.checkoutCommit_CMDLINE(commitID=df["id"].iloc[idx])
 
-            if SCLC == 0:
+            if config.SCLC == 0:
                 sclcDF: DataFrame = scc.countLines()
             else:
-                sclcDF: DataFrame = cloc.countLines(directory=PATH)
+                sclcDF: DataFrame = cloc.countLines(directory=config.PATH)
 
             updateDataFrameRowFromSCLC(df=df, sclcDF=sclcDF, dfIDX=idx)
             bar.next()
 
-    git.resetHEAD_CMDLINE(branch=BRANCH)
-    logging.info(msg=f"Reset {PATH} to HEAD branch")
+    git.resetHEAD_CMDLINE(branch=config.BRANCH)
+    logging.info(msg=f"Reset {config.PATH} to HEAD branch")
 
     computeDeltas(df=df, columnName="LOC", deltaColumnName="DLOC")
     computeDeltas(df=df, columnName="KLOC", deltaColumnName="DKLOC")
     logging.info(msg="Finished extracting commits")
 
-    filesystem.switchDirectories(path=pwd)
-    logging.info(msg=f"Now working in: {pwd}")
+    filesystem.switchDirectories(path=config.PWD)
+    logging.info(msg=f"Now working in: {config.PWD}")
 
     try:
         validate(instance=df.T.to_json(), schema=schema)
@@ -151,7 +124,7 @@ def main(args: Namespace) -> None:
         exit(3)
 
     df.T.to_json(
-        path_or_buf=OUTPUT,
+        path_or_buf=config.OUTPUT,
         indent=4,
     )
-    logging.info(msg=f"Saved data to: {OUTPUT}")
+    logging.info(msg=f"Saved data to: {config.OUTPUT}")
