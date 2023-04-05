@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from typing import List, Tuple
 
 from hglib.client import hgclient
@@ -37,7 +38,7 @@ def getCommitIterator(
 
 
 def getCommitCount(
-    commitIterator: List[Tuple[bytes, bytes, bytes, bytes, bytes, bytes]]
+    commitIterator: List[Tuple[bytes, bytes, bytes, bytes, bytes, bytes, datetime]]
 ) -> int:
     count: int = len(commitIterator)
     logging.info(msg=f"Found {count} commits")
