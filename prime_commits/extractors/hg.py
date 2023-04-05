@@ -4,11 +4,21 @@ from pathlib import Path
 import hglib
 from hglib.client import hgclient
 
+from prime_commits.utils import filesystem
 from prime_commits.utils.types.config import Config
+from prime_commits.vcs import hg
 
 
 def main(config: Config) -> None:
-    repo: hgclient = hglib.open(path=config.PATH)
+    if filesystem.checkIfHGRepository(path=config.PATH) == False:
+        exit(1)
+    repo: hgclient = hglib.open(path=config.PATH.__str__())
+
+    if config.BRANCH is None:
+        config.BRANCH: str = hg.getDefaultBranchName(repo=repo)
+
+    if hg.checkIfBranch(branch=config.BRANCH, repo=repo) == False:
+        exit(2)
 
     # if config.BRANCH is None:
     #     config.BRANCH = "default"

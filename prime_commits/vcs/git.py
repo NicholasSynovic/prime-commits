@@ -2,7 +2,7 @@ import logging
 import subprocess
 from subprocess import CompletedProcess
 
-from pygit2 import GIT_SORT_REVERSE, Branch, Repository, Walker
+from pygit2 import GIT_SORT_REVERSE, Repository, Walker
 
 
 def checkIfBranch(branch: str, repo: Repository) -> bool:
