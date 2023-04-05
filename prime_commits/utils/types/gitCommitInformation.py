@@ -7,7 +7,7 @@ from pygit2._pygit2 import Commit
 from prime_commits.utils.types.schema import schema
 
 
-class CommitInformation:
+class GitCommitInformation:
     def __init__(self, commit: Commit) -> None:
         author: Signature = commit.author
         commiter: Signature = commit.committer

@@ -11,8 +11,8 @@ from pygit2._pygit2 import Walker
 
 from prime_commits.sclc import cloc, scc
 from prime_commits.utils import filesystem
-from prime_commits.utils.types.commitInformation import CommitInformation
 from prime_commits.utils.types.config import Config
+from prime_commits.utils.types.gitCommitInformation import GitCommitInformation
 from prime_commits.utils.types.schema import schema
 from prime_commits.vcs import git
 
@@ -64,7 +64,7 @@ def main(config: Config) -> None:
     with Bar("Extracting commit information...", max=commitCount) as bar:
         while True:
             try:
-                information: CommitInformation = CommitInformation(
+                information: GitCommitInformation = GitCommitInformation(
                     commit=next(commitIterator)
                 )
                 config.DF_LIST.append(information.__pd__())
