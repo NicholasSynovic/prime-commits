@@ -24,6 +24,9 @@ class Config:
             level=logging.INFO,
         )
 
+        if filesystem.checkIfValidDirectoryPath(path=self.PATH) == False:
+            exit(1)
+
         self.SCLC: int
         match args.sclc:
             case "scc":
@@ -35,7 +38,6 @@ class Config:
             case _:
                 exit(1)
 
-        logging.info(msg=f"Parent working directory is: {self.PWD}")
+        logging.info(msg=f"Parent working directory is {self.PWD}")
 
         filesystem.switchDirectories(path=self.PATH)
-        logging.info(msg=f"Now working in: {self.PATH}")
