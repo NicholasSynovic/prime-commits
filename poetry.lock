@@ -779,6 +779,17 @@ files = [
 six = ">=1.5"
 
 [[package]]
+name = "python-hglib"
+version = "2.6.2"
+description = "Mercurial Python library"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "python-hglib-2.6.2.tar.gz", hash = "sha256:b18bd1ed53c90ee57d5714d66ad6bb72b64e930d4aeca9830892c08bb28da608"},
+]
+
+[[package]]
 name = "pytz"
 version = "2023.2"
 description = "World timezone definitions, modern and historical"
@@ -821,4 +832,4 @@ polars = ["polars", "pyarrow"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "47cf956b09ce8a03e9802c9b49926b9692f48e7993f133fd4e94729799fdfb8c"
+content-hash = "1d90fa792befde00e093b01aaa4d8de2324ce50e92831477d8ff8f8f9fd47f98"

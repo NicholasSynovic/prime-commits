@@ -81,6 +81,7 @@ pygit2 = "^1.11.1"
 lxml = "^4.9.2"
 typedframe = "^0.10.0"
 jsonschema = "^4.17.3"
+python-hglib = "^2.6.2"
 
 
 [build-system]
