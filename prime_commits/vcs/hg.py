@@ -23,5 +23,14 @@ def checkIfBranch(branch: str, repo: hgclient) -> bool:
         return False
 
 
-def getHEADName() -> None:
-    pass
+def restoreRepoToBranch(branch: str, repo: hgclient) -> None:
+    repo.update(rev=branch, clean=True)
+    logging.info(msg=f"Restored repo to {branch} branch")
+
+
+def getCommitIterator(
+    branch: str, repo: hgclient
+) -> List[Tuple[bytes, bytes, bytes, bytes, bytes, bytes]]:
+    log = repo.log(branch=branch, removed=True)
+    logging.info(msg=f"Created commit iterator for branch {branch}")
+    return log

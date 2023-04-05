@@ -19,6 +19,11 @@ def main(config: Config) -> None:
 
     if hg.checkIfBranch(branch=config.BRANCH, repo=repo) == False:
         exit(2)
+    else:
+        logging.info(msg=f"Using the {config.BRANCH} branch of {config.PATH}")
+
+    hg.restoreRepoToBranch(branch=config.BRANCH, repo=repo)
+    commitIterator = hg.getCommitIterator(branch=config.BRANCH, repo=repo)
 
     # if config.BRANCH is None:
     #     config.BRANCH = "default"
