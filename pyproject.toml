@@ -89,7 +89,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-prime-commits-extract = "prime_commits.gitExtractor:main"
+prime-commits-extract = "prime_commits.extractor:main"
 prime-commits-graph = "prime_commits.graph:main"
 
 [tool.poetry.urls]
