@@ -12,6 +12,8 @@ def main() -> None:
             git.main(args=args)
         case "hg":
             hg.main(args=args)
+        case _:
+            exit(1)
 
 
 if __name__ == "__main__":
