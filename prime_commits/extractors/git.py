@@ -1,5 +1,4 @@
 import logging
-from argparse import Namespace
 from datetime import datetime
 from typing import List
 from warnings import filterwarnings
@@ -47,9 +46,7 @@ def computeDeltas(df: DataFrame, columnName: str, deltaColumnName: str) -> None:
     df[deltaColumnName] = df[columnName] - shift
 
 
-def main(args: Namespace) -> None:
-    config: Config = Config(args=args)
-
+def main(config: Config) -> None:
     dfList: List[DataFrame] = []
 
     if config.BRANCH is None:

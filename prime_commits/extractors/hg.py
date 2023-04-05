@@ -1,5 +1,5 @@
-from argparse import Namespace
+from prime_commits.utils.types.config import Config
 
 
-def main(args: Namespace) -> None:
+def main(config: Config) -> None:
     pass
