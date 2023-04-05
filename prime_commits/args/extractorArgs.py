@@ -12,14 +12,20 @@ def getArgs() -> Namespace:
         epilog=f"Authors: {', '.join(argVars.authorNames)}",
         formatter_class=argVars.AlphabeticalOrderHelpFormatter,
     )
-
+    parser.add_argument(
+        "--vcs",
+        default="git",
+        type=str,
+        choices=["git", "hg"],
+        required=False,
+        help="Set the version control system to use",
+    )
     parser.add_argument(
         "-v",
         "--version",
         action="version",
         version=f"{argVars.programName}: {version(distribution_name='prime-commits')}",
     )
-
     parser.add_argument(
         "--sclc",
         default="scc",
@@ -28,54 +34,39 @@ def getArgs() -> Namespace:
         required=False,
         help="Set the source code line counter to use",
     )
-
-    subparsers: _SubParsersAction = parser.add_subparsers(
-        title="Supported VCS",
-        required=True,
-    )
-
-    gitParser = subparsers.add_parser(
-        name="git",
-        help="Options for analyzing Git repositories",
-        prog=argVars.programName,
-        usage="prime-commits git",
-        formatter_class=argVars.AlphabeticalOrderHelpFormatter,
-    )
-
-    gitParser.add_argument(
+    parser.add_argument(
         "-d",
         "--directory",
         type=Path,
         required=True,
-        help="A Git directory",
-        dest="gitDirectory",
+        help="A path to a repository",
+        dest="directory",
     )
-    gitParser.add_argument(
-        "-b",
-        "--branch",
+    parser.add_argument(
+        "--git-branch",
         default=None,
         type=str,
         required=False,
-        help="A  branch name of the Git repository to be analyzed",
+        help="A branch name of the Git repository to be analyzed",
         dest="gitBranch",
     )
-    gitParser.add_argument(
+    parser.add_argument(
         "-o",
         "--output",
         default=Path("commits.json").resolve(),
         type=Path,
         required=False,
         help="Output file to store commit and SCLC data in JSON format",
-        dest="gitOutput",
+        dest="output",
     )
-    gitParser.add_argument(
+    parser.add_argument(
         "-l",
         "--log",
         default=Path("commits.log").resolve(),
         type=Path,
         required=False,
         help="File to store logging information",
-        dest="gitLog",
+        dest="log",
     )
 
     return parser.parse_args()

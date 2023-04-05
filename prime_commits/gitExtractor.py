@@ -52,10 +52,10 @@ def computeDeltas(df: DataFrame, columnName: str, deltaColumnName: str) -> None:
 def main() -> None:
     args: Namespace = getArgs()
 
-    PATH: Path = args.gitDirectory
+    PATH: Path = args.directory
     BRANCH: str | None = args.gitBranch
-    OUTPUT: Path = args.gitOutput
-    LOG: Path = args.gitLog
+    OUTPUT: Path = args.output
+    LOG: Path = args.log
 
     logging.basicConfig(
         filename=LOG,
