@@ -25,29 +25,29 @@ class GenericVCS(metaclass=ABCMeta):
         )
 
     @abstractmethod
-    def checkIfBranch(branch: str) -> bool:
+    def checkIfBranch(self, branch: str) -> bool:
         raise NotImplementedError
 
     @abstractmethod
-    def getDefaultBranchName() -> str:
+    def getDefaultBranchName(self) -> str:
         raise NotImplementedError
 
     @abstractmethod
-    def getCommitCount(branch: str) -> int:
+    def getCommitCount(self, branch: str) -> int:
         raise NotImplementedError
 
     @abstractmethod
-    def checkoutCommit(commitID: str) -> None:
+    def checkoutCommit(self, commitID: str) -> None:
         raise NotImplementedError
 
     @abstractmethod
-    def restoreRepoToBranch(branch: str) -> None:
+    def restoreRepoToBranch(self, branch: str) -> None:
         raise NotImplementedError
 
     @abstractmethod
-    def getCurrentCheckedOutCommit() -> str:
+    def getCurrentCheckedOutCommit(self) -> str:
         raise NotImplementedError
 
     @abstractmethod
-    def getCommitIterator() -> Any:
+    def getCommitIterator(self) -> Any:
         raise NotImplementedError
