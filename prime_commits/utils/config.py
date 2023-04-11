@@ -1,3 +1,4 @@
+import logging
 from argparse import Namespace
 from logging import FileHandler, Formatter, Logger
 from pathlib import Path
@@ -14,21 +15,20 @@ class Config:
         self.BRANCH: str | None = args.branch
         self.OUTPUT: Path = args.output.resolve()
         self.LOG: Path = args.log.resolve()
-        self.PWD: Path = filesystem.getCWD()
         self.DF_LIST: List[DataFrame] = []
-        self.LOGGER = Logger(name="PRIME Commit Extractor", level=self.LOGGER.info)
-
-        if filesystem.checkIfValidDirectoryPath(path=self.PATH) == False:
-            exit(1)
+        self.LOGGER = Logger(name="PRIME Commit Extractor", level=logging.INFO)
 
         logFileHandler: FileHandler = FileHandler(filename=self.LOG)
         logDateFormat: Formatter = Formatter(
             fmt="%(asctime)s %(levelname)s: %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
         )
-
         logFileHandler.setFormatter(fmt=logDateFormat)
-
         self.LOGGER.addHandler(hdlr=logFileHandler)
+
+        self.PWD: Path = filesystem.getCWD(config=self)
+
+        if filesystem.checkIfValidDirectoryPath(path=self.PATH, config=self) == False:
+            exit(1)
 
         self.SCLC: int
         match args.sclc:
@@ -43,4 +43,4 @@ class Config:
 
         self.LOGGER.info(msg=f"Parent working directory is {self.PWD}")
 
-        filesystem.switchDirectories(path=self.PATH)
+        filesystem.switchDirectories(path=self.PATH, config=self)
