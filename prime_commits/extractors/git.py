@@ -3,9 +3,8 @@ import logging
 import pandas
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError
-from pandas import DataFrame, Series
+from pandas import DataFrame
 from progress.bar import Bar
-from pygit2 import Repository
 from pygit2._pygit2 import Walker
 
 from prime_commits.sclc import cloc, scc
@@ -13,7 +12,7 @@ from prime_commits.utils import compute, filesystem
 from prime_commits.utils.config import Config
 from prime_commits.utils.types.gitCommitInformation import GitCommitInformation
 from prime_commits.utils.types.jsonSchema import schema
-from prime_commits.vcs import git
+from prime_commits.vcs.git import Git
 
 
 def updateDataFrameRowFromSCLC(df: DataFrame, sclcDF: DataFrame, dfIDX: int) -> None:
@@ -34,19 +33,20 @@ def updateDataFrameRowFromSCLC(df: DataFrame, sclcDF: DataFrame, dfIDX: int) -> 
 def main(config: Config) -> None:
     if filesystem.checkIfGitRepository(path=config.PATH) == False:
         exit(1)
-    repo: Repository = Repository(path=config.PATH)
+
+    git: Git = Git(repositoryPath=config.PATH)
 
     if config.BRANCH is None:
         config.BRANCH: str = git.getDefaultBranchName()
 
-    if git.checkIfBranch(branch=config.BRANCH, repo=repo) == False:
+    if git.checkIfBranch(branch=config.BRANCH) == False:
         exit(2)
     else:
         logging.info(msg=f"Using the {config.BRANCH} branch of {config.PATH}")
 
     git.restoreRepoToBranch(branch=config.BRANCH)
 
-    commitIterator: Walker = git.getCommitIterator(repo=repo)
+    commitIterator: Walker = git.getCommitIterator()
     commitCount: int = git.getCommitCount(branch=config.BRANCH)
 
     with Bar("Extracting commit information...", max=commitCount) as bar:
