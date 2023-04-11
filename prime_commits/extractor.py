@@ -1,5 +1,6 @@
 import logging
 from argparse import Namespace
+from logging import FileHandler, Formatter, Logger
 from warnings import filterwarnings
 
 from prime_commits.args.extractorArgs import getArgs
@@ -13,12 +14,7 @@ def main() -> None:
     args: Namespace = getArgs()
     config: Config = Config(args=args)
 
-    logging.basicConfig(
-        filename=config.LOG,
-        format="%(asctime)s %(levelname)s: %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-        level=logging.INFO,
-    )
+    logger.info(msg="Test")
 
     match args.vcs:
         case "git":

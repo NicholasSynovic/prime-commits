@@ -28,7 +28,7 @@ def main(config: Config) -> None:
     if hg.checkIfBranch(branch=config.BRANCH) == False:
         exit(2)
     else:
-        logging.info(msg=f"Using the {config.BRANCH} branch of {config.PATH}")
+        self.LOGGER.info(msg=f"Using the {config.BRANCH} branch of {config.PATH}")
 
     hg.restoreRepoToBranch(branch=config.BRANCH)
 
@@ -76,7 +76,7 @@ def main(config: Config) -> None:
 
     compute.computeDeltas(df=df, columnName="LOC", deltaColumnName="DLOC")
     compute.computeDeltas(df=df, columnName="KLOC", deltaColumnName="DKLOC")
-    logging.info(msg="Finished extracting commits")
+    self.LOGGER.info(msg="Finished extracting commits")
 
     filesystem.switchDirectories(path=config.PWD)
 
@@ -87,11 +87,11 @@ def main(config: Config) -> None:
             "\n",
             "ERROR: Unable to validate commits. Please see the log for more information",
         )
-        logging.info(msg=f"ERROR: Unable to validate JSON: {information.__dict__}")
+        self.LOGGER.info(msg=f"ERROR: Unable to validate JSON: {information.__dict__}")
         exit(3)
 
     df.T.to_json(
         path_or_buf=config.OUTPUT,
         indent=4,
     )
-    logging.info(msg=f"Saved data to: {config.OUTPUT}")
+    self.LOGGER.info(msg=f"Saved data to: {config.OUTPUT}")

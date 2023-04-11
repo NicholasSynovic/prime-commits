@@ -18,9 +18,9 @@ class Git(GenericVCS):
 
     def checkIfBranch(self, branch: str) -> bool:
         if self.repo.lookup_branch(branch) is None:
-            logging.info(msg=f"{branch} is not a valid Git branch")
+            self.LOGGER.info(msg=f"{branch} is not a valid Git branch")
             return False
-        logging.info(msg=f"{branch} is a valid Git branch")
+        self.LOGGER.info(msg=f"{branch} is a valid Git branch")
         return True
 
     def getDefaultBranchName(self) -> str:
@@ -29,7 +29,7 @@ class Git(GenericVCS):
             args=cmdStr, stdout=subprocess.PIPE, shell=True
         )
         branch: str = process.stdout.decode().strip()
-        logging.info(msg=f"{branch} is the default Git branch")
+        self.LOGGER.info(msg=f"{branch} is the default Git branch")
         return branch
 
     def getCommitCount(self, branch: str = "HEAD") -> int:
@@ -38,18 +38,18 @@ class Git(GenericVCS):
             args=cmdStr, stdout=subprocess.PIPE, shell=True
         )
         count: int = int(process.stdout)
-        logging.info(msg=f"Found {count} commits in branch {branch}")
+        self.LOGGER.info(msg=f"Found {count} commits in branch {branch}")
         return count
 
     def checkoutCommit(self, commitID: str) -> None:
         cmdStr: str = f"git checkout {commitID} --quiet --force"
         subprocess.run(args=cmdStr, stdout=subprocess.DEVNULL, shell=True)
-        logging.info(msg=f"Checked out {commitID}")
+        self.LOGGER.info(msg=f"Checked out {commitID}")
 
     def restoreRepoToBranch(self, branch: str) -> None:
         cmdStr: str = f"git checkout {branch} --quiet --force"
         subprocess.run(args=cmdStr, stdout=subprocess.DEVNULL, shell=True)
-        logging.info(msg=f"Restored repo to {branch} branch")
+        self.LOGGER.info(msg=f"Restored repo to {branch} branch")
 
     def getCurrentCheckedOutCommit(self) -> str:
         cmdStr: str = 'git --no-pager log -1 --pretty="%H"'
@@ -57,9 +57,9 @@ class Git(GenericVCS):
             args=cmdStr, stdout=subprocess.PIPE, shell=True
         )
         commit: str = process.stdout.decode().strip()
-        logging.info(msg=f"{commit} is currently checked out")
+        self.LOGGER.info(msg=f"{commit} is currently checked out")
         return commit
 
     def getCommitIterator(self) -> Walker:
-        logging.info(msg=f"Created commit iterator")
+        self.LOGGER.info(msg=f"Created commit iterator")
         return self.repo.walk(self.repo.head.target, GIT_SORT_REVERSE)

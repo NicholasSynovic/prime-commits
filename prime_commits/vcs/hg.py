@@ -18,7 +18,7 @@ class Hg(GenericVCS):
 
     def getDefaultBranchName(self) -> str:
         branch: str = self.repo.branch()
-        logging.info(msg=f"{branch} is the default Mercurial branch")
+        self.LOGGER.info(msg=f"{branch} is the default Mercurial branch")
         return branch
 
     def checkIfBranch(self, branch: str) -> bool:
@@ -29,21 +29,21 @@ class Hg(GenericVCS):
 
         try:
             branches.index(branch)
-            logging.info(msg=f"{branch} is a valid Git branch")
+            self.LOGGER.info(msg=f"{branch} is a valid Git branch")
             return True
         except ValueError:
-            logging.info(msg=f"{branch} is not a valid Git branch")
+            self.LOGGER.info(msg=f"{branch} is not a valid Git branch")
             return False
 
     def restoreRepoToBranch(self, branch: str) -> None:
         self.repo.update(rev=branch, clean=True)
-        logging.info(msg=f"Restored repo to {branch} branch")
+        self.LOGGER.info(msg=f"Restored repo to {branch} branch")
 
     def getCommitIterator(
         self, branch: str
     ) -> List[Tuple[bytes, bytes, bytes, bytes, bytes, bytes]]:
         log = self.repo.log(branch=branch, removed=True)
-        logging.info(msg=f"Created commit iterator for branch {branch}")
+        self.LOGGER.info(msg=f"Created commit iterator for branch {branch}")
         return log
 
     def getCommitCount(
@@ -51,12 +51,12 @@ class Hg(GenericVCS):
         commitIterator: List[Tuple[bytes, bytes, bytes, bytes, bytes, bytes, datetime]],
     ) -> int:
         count: int = len(commitIterator)
-        logging.info(msg=f"Found {count} commits")
+        self.LOGGER.info(msg=f"Found {count} commits")
         return count
 
     def checkoutCommit(self, commitID: str) -> None:
         self.repo.update(rev=commitID, clean=True)
-        logging.info(msg=f"Checked out {commitID}")
+        self.LOGGER.info(msg=f"Checked out {commitID}")
 
     def getCurrentCheckedOutCommit(self) -> str:
         return super().getCurrentCheckedOutCommit()
