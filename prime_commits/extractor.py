@@ -1,3 +1,4 @@
+import logging
 from argparse import Namespace
 from warnings import filterwarnings
 
@@ -11,6 +12,13 @@ filterwarnings(action="ignore")
 def main() -> None:
     args: Namespace = getArgs()
     config: Config = Config(args=args)
+
+    logging.basicConfig(
+        filename=config.LOG,
+        format="%(asctime)s %(levelname)s: %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+        level=logging.INFO,
+    )
 
     match args.vcs:
         case "git":

@@ -14,6 +14,8 @@ from prime_commits.utils.types.gitCommitInformation import GitCommitInformation
 from prime_commits.utils.types.jsonSchema import schema
 from prime_commits.vcs.git import Git
 
+logger = logging.getLogger(__name__)
+
 
 def main(config: Config) -> None:
     if filesystem.checkIfGitRepository(path=config.PATH) == False:
@@ -27,7 +29,7 @@ def main(config: Config) -> None:
     if git.checkIfBranch(branch=config.BRANCH) == False:
         exit(2)
     else:
-        logging.info(msg=f"Using the {config.BRANCH} branch of {config.PATH}")
+        logger.info(msg=f"Using the {config.BRANCH} branch of {config.PATH}")
 
     git.restoreRepoToBranch(branch=config.BRANCH)
 
@@ -76,7 +78,7 @@ def main(config: Config) -> None:
 
     compute.computeDeltas(df=df, columnName="LOC", deltaColumnName="DLOC")
     compute.computeDeltas(df=df, columnName="KLOC", deltaColumnName="DKLOC")
-    logging.info(msg="Finished extracting commits")
+    logger.info(msg="Finished extracting commits")
 
     filesystem.switchDirectories(path=config.PWD)
 
@@ -87,11 +89,11 @@ def main(config: Config) -> None:
             "\n",
             "ERROR: Unable to validate commits. Please see the log for more information",
         )
-        logging.info(msg=f"ERROR: Unable to validate JSON: {information.__dict__}")
+        logger.info(msg=f"ERROR: Unable to validate JSON: {information.__dict__}")
         exit(3)
 
     df.T.to_json(
         path_or_buf=config.OUTPUT,
         indent=4,
     )
-    logging.info(msg=f"Saved data to: {config.OUTPUT}")
+    logger.info(msg=f"Saved data to: {config.OUTPUT}")

@@ -17,13 +17,6 @@ class Config:
         self.PWD: Path = filesystem.getCWD()
         self.DF_LIST: List[DataFrame] = []
 
-        logging.basicConfig(
-            filename=self.LOG,
-            format="%(asctime)s %(levelname)s: %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S",
-            level=logging.INFO,
-        )
-
         if filesystem.checkIfValidDirectoryPath(path=self.PATH) == False:
             exit(1)
 
