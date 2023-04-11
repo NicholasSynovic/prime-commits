@@ -58,7 +58,5 @@ class Hg(GenericVCS):
         self.repo.update(rev=commitID, clean=True)
         logging.info(msg=f"Checked out {commitID}")
 
-        return super().checkoutCommit(commitID)
-
     def getCurrentCheckedOutCommit(self) -> str:
         return super().getCurrentCheckedOutCommit()
