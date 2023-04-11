@@ -14,7 +14,7 @@ from prime_commits.vcs.git import Git
 
 
 def main(config: Config) -> None:
-    if filesystem.checkIfGitRepository(path=config.PATH) == False:
+    if filesystem.checkIfGitRepository(path=config.PATH, config=config) == False:
         exit(1)
 
     git: Git = Git(repositoryPath=config.PATH, config=config)
@@ -76,7 +76,7 @@ def main(config: Config) -> None:
     compute.computeDeltas(df=df, columnName="KLOC", deltaColumnName="DKLOC")
     config.LOGGER.info(msg="Finished extracting commits")
 
-    filesystem.switchDirectories(path=config.PWD)
+    filesystem.switchDirectories(path=config.PWD, config=config)
 
     try:
         validate(instance=df.T.to_json(), schema=schema)
