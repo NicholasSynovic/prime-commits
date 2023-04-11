@@ -1,4 +1,3 @@
-import logging
 from datetime import datetime
 from typing import List, Tuple
 
@@ -20,7 +19,7 @@ def main(config: Config) -> None:
     if filesystem.checkIfHGRepository(path=config.PATH) == False:
         exit(1)
 
-    hg: Hg = Hg(repositoryPath=config.PATH)
+    hg: Hg = Hg(repositoryPath=config.PATH, config=config)
 
     if config.BRANCH is None:
         config.BRANCH: str = hg.getDefaultBranchName()
@@ -28,7 +27,7 @@ def main(config: Config) -> None:
     if hg.checkIfBranch(branch=config.BRANCH) == False:
         exit(2)
     else:
-        self.LOGGER.info(msg=f"Using the {config.BRANCH} branch of {config.PATH}")
+        config.LOGGER.info(msg=f"Using the {config.BRANCH} branch of {config.PATH}")
 
     hg.restoreRepoToBranch(branch=config.BRANCH)
 
@@ -76,7 +75,7 @@ def main(config: Config) -> None:
 
     compute.computeDeltas(df=df, columnName="LOC", deltaColumnName="DLOC")
     compute.computeDeltas(df=df, columnName="KLOC", deltaColumnName="DKLOC")
-    self.LOGGER.info(msg="Finished extracting commits")
+    config.LOGGER.info(msg="Finished extracting commits")
 
     filesystem.switchDirectories(path=config.PWD)
 
@@ -87,11 +86,13 @@ def main(config: Config) -> None:
             "\n",
             "ERROR: Unable to validate commits. Please see the log for more information",
         )
-        self.LOGGER.info(msg=f"ERROR: Unable to validate JSON: {information.__dict__}")
+        config.LOGGER.info(
+            msg=f"ERROR: Unable to validate JSON: {information.__dict__}"
+        )
         exit(3)
 
     df.T.to_json(
         path_or_buf=config.OUTPUT,
         indent=4,
     )
-    self.LOGGER.info(msg=f"Saved data to: {config.OUTPUT}")
+    config.LOGGER.info(msg=f"Saved data to: {config.OUTPUT}")

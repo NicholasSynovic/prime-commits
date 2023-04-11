@@ -1,6 +1,4 @@
-import logging
 from argparse import Namespace
-from logging import FileHandler, Formatter, Logger
 from warnings import filterwarnings
 
 from prime_commits.args.extractorArgs import getArgs

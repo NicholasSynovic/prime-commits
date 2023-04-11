@@ -1,15 +1,16 @@
-import logging
 import subprocess
 from pathlib import Path
 from subprocess import CompletedProcess
 
 from pygit2 import GIT_SORT_REVERSE, Repository, Walker
 
+from prime_commits.utils.config import Config
 from prime_commits.vcs.genericVCS import GenericVCS
 
 
 class Git(GenericVCS):
-    def __init__(self, repositoryPath: Path) -> None:
+    def __init__(self, repositoryPath: Path, config: Config) -> None:
+        self.config: Config = config
         self.repositoryPath: Path = repositoryPath
         self.repo: Repository = Repository(
             path=self.repositoryPath.absolute().__str__()
@@ -18,9 +19,9 @@ class Git(GenericVCS):
 
     def checkIfBranch(self, branch: str) -> bool:
         if self.repo.lookup_branch(branch) is None:
-            self.LOGGER.info(msg=f"{branch} is not a valid Git branch")
+            self.config.LOGGER.info(msg=f"{branch} is not a valid Git branch")
             return False
-        self.LOGGER.info(msg=f"{branch} is a valid Git branch")
+        self.config.LOGGER.info(msg=f"{branch} is a valid Git branch")
         return True
 
     def getDefaultBranchName(self) -> str:
@@ -29,7 +30,7 @@ class Git(GenericVCS):
             args=cmdStr, stdout=subprocess.PIPE, shell=True
         )
         branch: str = process.stdout.decode().strip()
-        self.LOGGER.info(msg=f"{branch} is the default Git branch")
+        self.config.LOGGER.info(msg=f"{branch} is the default Git branch")
         return branch
 
     def getCommitCount(self, branch: str = "HEAD") -> int:
@@ -38,18 +39,18 @@ class Git(GenericVCS):
             args=cmdStr, stdout=subprocess.PIPE, shell=True
         )
         count: int = int(process.stdout)
-        self.LOGGER.info(msg=f"Found {count} commits in branch {branch}")
+        self.config.LOGGER.info(msg=f"Found {count} commits in branch {branch}")
         return count
 
     def checkoutCommit(self, commitID: str) -> None:
         cmdStr: str = f"git checkout {commitID} --quiet --force"
         subprocess.run(args=cmdStr, stdout=subprocess.DEVNULL, shell=True)
-        self.LOGGER.info(msg=f"Checked out {commitID}")
+        self.config.LOGGER.info(msg=f"Checked out {commitID}")
 
     def restoreRepoToBranch(self, branch: str) -> None:
         cmdStr: str = f"git checkout {branch} --quiet --force"
         subprocess.run(args=cmdStr, stdout=subprocess.DEVNULL, shell=True)
-        self.LOGGER.info(msg=f"Restored repo to {branch} branch")
+        self.config.LOGGER.info(msg=f"Restored repo to {branch} branch")
 
     def getCurrentCheckedOutCommit(self) -> str:
         cmdStr: str = 'git --no-pager log -1 --pretty="%H"'
@@ -57,9 +58,9 @@ class Git(GenericVCS):
             args=cmdStr, stdout=subprocess.PIPE, shell=True
         )
         commit: str = process.stdout.decode().strip()
-        self.LOGGER.info(msg=f"{commit} is currently checked out")
+        self.config.LOGGER.info(msg=f"{commit} is currently checked out")
         return commit
 
     def getCommitIterator(self) -> Walker:
-        self.LOGGER.info(msg=f"Created commit iterator")
+        self.config.LOGGER.info(msg=f"Created commit iterator")
         return self.repo.walk(self.repo.head.target, GIT_SORT_REVERSE)

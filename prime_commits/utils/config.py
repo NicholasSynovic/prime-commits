@@ -1,4 +1,3 @@
-import logging
 from argparse import Namespace
 from logging import FileHandler, Formatter, Logger
 from pathlib import Path
