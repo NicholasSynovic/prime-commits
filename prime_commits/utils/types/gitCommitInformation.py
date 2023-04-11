@@ -4,7 +4,7 @@ from pandas import DataFrame
 from pygit2 import Signature
 from pygit2._pygit2 import Commit
 
-from prime_commits.utils.types.schema import schema
+from prime_commits.utils.types.jsonSchema import schema
 
 
 class GitCommitInformation:

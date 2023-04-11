@@ -6,7 +6,7 @@ from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 from pandas import DataFrame
 
-from prime_commits.utils.types.schema import schema
+from prime_commits.utils.types.jsonSchema import schema
 
 
 class HgCommitInformation:
