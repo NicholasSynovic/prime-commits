@@ -41,6 +41,11 @@ class Git(GenericVCS):
         logging.info(msg=f"Found {count} commits in branch {branch}")
         return count
 
+    def checkoutCommit(self, commitID: str) -> None:
+        cmdStr: str = f"git checkout {commitID} --quiet --force"
+        subprocess.run(args=cmdStr, stdout=subprocess.DEVNULL, shell=True)
+        logging.info(msg=f"Checked out {commitID}")
+
     def restoreRepoToBranch(self, branch: str) -> None:
         cmdStr: str = f"git checkout {branch} --quiet --force"
         subprocess.run(args=cmdStr, stdout=subprocess.DEVNULL, shell=True)
