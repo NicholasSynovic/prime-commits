@@ -16,7 +16,7 @@ from prime_commits.vcs.hg import Hg
 
 
 def main(config: Config) -> None:
-    if filesystem.checkIfHGRepository(path=config.PATH) == False:
+    if filesystem.checkIfHGRepository(path=config.PATH, config=config) == False:
         exit(1)
 
     hg: Hg = Hg(repositoryPath=config.PATH, config=config)
@@ -77,7 +77,7 @@ def main(config: Config) -> None:
     compute.computeDeltas(df=df, columnName="KLOC", deltaColumnName="DKLOC")
     config.LOGGER.info(msg="Finished extracting commits")
 
-    filesystem.switchDirectories(path=config.PWD)
+    filesystem.switchDirectories(path=config.PWD, config=config)
 
     try:
         validate(instance=df.T.to_json(), schema=schema)

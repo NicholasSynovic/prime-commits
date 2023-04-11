@@ -11,12 +11,13 @@ from prime_commits.vcs.genericVCS import GenericVCS
 
 class Hg(GenericVCS):
     def __init__(self, repositoryPath: Path, config: Config) -> None:
+        self.config = config
         self.repositoryPath: Path = repositoryPath
         self.repo: hgclient = hglib.open(path=self.repositoryPath.absolute().__str__())
         super().__init__()
 
     def getDefaultBranchName(self) -> str:
-        branch: str = self.repo.branch()
+        branch: str = self.repo.branch().decode().strip()
         self.config.LOGGER.info(msg=f"{branch} is the default Mercurial branch")
         return branch
 
