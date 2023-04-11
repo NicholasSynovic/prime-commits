@@ -3,6 +3,8 @@ from datetime import datetime
 from typing import List, Tuple
 
 import pandas
+from jsonschema import validate
+from jsonschema.exceptions import ValidationError
 from pandas import DataFrame
 from progress.bar import Bar
 
@@ -10,6 +12,7 @@ from prime_commits.sclc import cloc, scc
 from prime_commits.utils import compute, filesystem
 from prime_commits.utils.config import Config
 from prime_commits.utils.types.hgCommitInformation import HgCommitInformation
+from prime_commits.utils.types.jsonSchema import schema
 from prime_commits.vcs.hg import Hg
 
 
@@ -68,3 +71,27 @@ def main(config: Config) -> None:
 
             compute.updateDataFrameRowFromSCLC(df=df, sclcDF=sclcDF, dfIDX=idx)
             bar.next()
+
+    hg.restoreRepoToBranch(branch=config.BRANCH)
+
+    compute.computeDeltas(df=df, columnName="LOC", deltaColumnName="DLOC")
+    compute.computeDeltas(df=df, columnName="KLOC", deltaColumnName="DKLOC")
+    logging.info(msg="Finished extracting commits")
+
+    filesystem.switchDirectories(path=config.PWD)
+
+    try:
+        validate(instance=df.T.to_json(), schema=schema)
+    except ValidationError:
+        print(
+            "\n",
+            "ERROR: Unable to validate commits. Please see the log for more information",
+        )
+        logging.info(msg=f"ERROR: Unable to validate JSON: {information.__dict__}")
+        exit(3)
+
+    df.T.to_json(
+        path_or_buf=config.OUTPUT,
+        indent=4,
+    )
+    logging.info(msg=f"Saved data to: {config.OUTPUT}")

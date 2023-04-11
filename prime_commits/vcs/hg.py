@@ -1,4 +1,5 @@
 import logging
+import subprocess
 from datetime import datetime
 from pathlib import Path
 from typing import List, Tuple
@@ -54,6 +55,9 @@ class Hg(GenericVCS):
         return count
 
     def checkoutCommit(self, commitID: str) -> None:
+        self.repo.update(rev=commitID, clean=True)
+        logging.info(msg=f"Checked out {commitID}")
+
         return super().checkoutCommit(commitID)
 
     def getCurrentCheckedOutCommit(self) -> str:
