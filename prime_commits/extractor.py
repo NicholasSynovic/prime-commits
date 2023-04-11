@@ -3,7 +3,7 @@ from warnings import filterwarnings
 
 from prime_commits.args.extractorArgs import getArgs
 from prime_commits.extractors import git, hg
-from prime_commits.utils.types.config import Config
+from prime_commits.utils.config import Config
 
 filterwarnings(action="ignore")
 

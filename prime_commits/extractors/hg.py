@@ -10,7 +10,7 @@ from progress.bar import Bar
 
 from prime_commits.sclc import cloc, scc
 from prime_commits.utils import compute, filesystem
-from prime_commits.utils.types.config import Config
+from prime_commits.utils.config import Config
 from prime_commits.utils.types.hgCommitInformation import HgCommitInformation
 from prime_commits.vcs import hg
 

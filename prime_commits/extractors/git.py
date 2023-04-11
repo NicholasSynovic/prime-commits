@@ -10,7 +10,7 @@ from pygit2._pygit2 import Walker
 
 from prime_commits.sclc import cloc, scc
 from prime_commits.utils import compute, filesystem
-from prime_commits.utils.types.config import Config
+from prime_commits.utils.config import Config
 from prime_commits.utils.types.gitCommitInformation import GitCommitInformation
 from prime_commits.utils.types.schema import schema
 from prime_commits.vcs import git
