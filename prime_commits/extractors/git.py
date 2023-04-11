@@ -15,21 +15,6 @@ from prime_commits.utils.types.jsonSchema import schema
 from prime_commits.vcs.git import Git
 
 
-def updateDataFrameRowFromSCLC(df: DataFrame, sclcDF: DataFrame, dfIDX: int) -> None:
-    sclcFiles: int = sclcDF.loc[0, "Files"]
-    sclcLines: int = sclcDF.loc[0, "Lines"]
-    sclcBlank: int = sclcDF.loc[0, "Blank"]
-    sclcComment: int = sclcDF.loc[0, "Comment"]
-    sclcCode: int = sclcDF.loc[0, "Code"]
-
-    df["NumberOfFiles"].iloc[dfIDX] = sclcFiles
-    df["NumberOfLines"].iloc[dfIDX] = sclcLines
-    df["NumberOfBlankLines"].iloc[dfIDX] = sclcBlank
-    df["NumberOfCommentLines"].iloc[dfIDX] = sclcComment
-    df["LOC"].iloc[dfIDX] = sclcCode
-    df["KLOC"].iloc[dfIDX] = sclcCode / 1000
-
-
 def main(config: Config) -> None:
     if filesystem.checkIfGitRepository(path=config.PATH) == False:
         exit(1)
@@ -84,7 +69,7 @@ def main(config: Config) -> None:
             else:
                 sclcDF: DataFrame = cloc.countLines(directory=config.PATH)
 
-            updateDataFrameRowFromSCLC(df=df, sclcDF=sclcDF, dfIDX=idx)
+            compute.updateDataFrameRowFromSCLC(df=df, sclcDF=sclcDF, dfIDX=idx)
             bar.next()
 
     git.restoreRepoToBranch(branch=config.BRANCH)

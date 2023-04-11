@@ -3,6 +3,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Tuple
 
+import hglib
 from hglib.client import hgclient
 
 from prime_commits.vcs.genericVCS import GenericVCS
@@ -11,7 +12,7 @@ from prime_commits.vcs.genericVCS import GenericVCS
 class Hg(GenericVCS):
     def __init__(self, repositoryPath: Path) -> None:
         self.repositoryPath: Path = repositoryPath
-        self.repo: hgclient = hgclient(path=self.repositoryPath.absolute().__str__())
+        self.repo: hgclient = hglib.open(path=self.repositoryPath.absolute().__str__())
         super().__init__()
 
     def getDefaultBranchName(self) -> str:
@@ -45,8 +46,15 @@ class Hg(GenericVCS):
         return log
 
     def getCommitCount(
-        commitIterator: List[Tuple[bytes, bytes, bytes, bytes, bytes, bytes, datetime]]
+        self,
+        commitIterator: List[Tuple[bytes, bytes, bytes, bytes, bytes, bytes, datetime]],
     ) -> int:
         count: int = len(commitIterator)
         logging.info(msg=f"Found {count} commits")
         return count
+
+    def checkoutCommit(self, commitID: str) -> None:
+        return super().checkoutCommit(commitID)
+
+    def getCurrentCheckedOutCommit(self) -> str:
+        return super().getCurrentCheckedOutCommit()

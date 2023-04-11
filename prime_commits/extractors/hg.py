@@ -2,9 +2,7 @@ import logging
 from datetime import datetime
 from typing import List, Tuple
 
-import hglib
 import pandas
-from hglib.client import hgclient
 from pandas import DataFrame
 from progress.bar import Bar
 
@@ -12,26 +10,29 @@ from prime_commits.sclc import cloc, scc
 from prime_commits.utils import compute, filesystem
 from prime_commits.utils.config import Config
 from prime_commits.utils.types.hgCommitInformation import HgCommitInformation
-from prime_commits.vcs import hg
+from prime_commits.vcs.hg import Hg
 
 
 def main(config: Config) -> None:
     if filesystem.checkIfHGRepository(path=config.PATH) == False:
         exit(1)
-    repo: hgclient = hglib.open(path=config.PATH.__str__())
+
+    hg: Hg = Hg(repositoryPath=config.PATH)
 
     if config.BRANCH is None:
-        config.BRANCH: str = hg.getDefaultBranchName(repo=repo)
+        config.BRANCH: str = hg.getDefaultBranchName()
 
-    if hg.checkIfBranch(branch=config.BRANCH, repo=repo) == False:
+    if hg.checkIfBranch(branch=config.BRANCH) == False:
         exit(2)
     else:
         logging.info(msg=f"Using the {config.BRANCH} branch of {config.PATH}")
 
-    hg.restoreRepoToBranch(branch=config.BRANCH, repo=repo)
+    hg.restoreRepoToBranch(branch=config.BRANCH)
+
     commitIterator: List[
         Tuple[bytes, bytes, bytes, bytes, bytes, bytes, datetime]
-    ] = hg.getCommitIterator(branch=config.BRANCH, repo=repo)
+    ] = hg.getCommitIterator(branch=config.BRANCH)
+
     commitCount: int = hg.getCommitCount(commitIterator=commitIterator)
 
     with Bar("Extracting commit information...", max=commitCount) as bar:
@@ -65,5 +66,5 @@ def main(config: Config) -> None:
             else:
                 sclcDF: DataFrame = cloc.countLines(directory=config.PATH)
 
-            updateDataFrameRowFromSCLC(df=df, sclcDF=sclcDF, dfIDX=idx)
+            compute.updateDataFrameRowFromSCLC(df=df, sclcDF=sclcDF, dfIDX=idx)
             bar.next()
