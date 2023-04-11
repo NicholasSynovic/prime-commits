@@ -8,9 +8,7 @@ from prime_commits.utils.types.sclcInformation import SCLCInformation
 
 
 def countLines() -> DataFrame:
-    cmdStr: str = (
-        "scc --format html-table --no-cocomo --no-complexity --no-duplicates --no-size"
-    )
+    cmdStr: str = "scc --format html-table --no-cocomo --no-complexity --no-duplicates --no-size ----exclude-ext tar.gz,onnx"
     process: CompletedProcess = subprocess.run(
         args=cmdStr, stdout=subprocess.PIPE, shell=True
     )
